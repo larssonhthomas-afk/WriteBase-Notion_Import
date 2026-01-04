@@ -12,14 +12,21 @@ Kräver:
 import json
 import sys
 import time
+import warnings
 import requests
 from pathlib import Path
+
+# Suppress LibreSSL/OpenSSL warning from urllib3
+warnings.filterwarnings("ignore", message="urllib3 v2 only supports OpenSSL")
 
 # === KONFIGURATION ===
 AIRTABLE_API_KEY = "pat9ReEZaYqZY5m9e.59f37b6fe74a579ccc56879abd34ed14c27c99bd9333226a2f631be03fe2007b"
 BASE_ID = "app7rJKwiEkVKn79v"
 TABLE_NAME = "DOCUMENT"
 PROJECT_NAME = "Notion_Import"
+
+# PROJECT table field name (often "Name" or "Title" - adjust to match your Airtable schema)
+PROJECT_NAME_FIELD = "Title"  # Changed from "Name" to match Airtable schema
 
 # Fältmappning: Notion -> Airtable
 FIELD_MAPPING = {
@@ -30,6 +37,17 @@ FIELD_MAPPING = {
     "tags": "Notion_Tag",  # Textfält - länkas manuellt senare
     "publish_date": "Publish_Date",
     # "content_type": "Type",  # Beräknat fält - kan inte skrivas
+}
+
+# Status value mapping: Notion status -> Airtable status
+# Map invalid values to valid Airtable select options
+# Set to None to skip records with unmapped status values
+STATUS_MAPPING = {
+    "Published": "Published",
+    "Inbox": "Inbox",
+    "#reference": "Inbox",    # Map #reference -> Inbox (or change to valid option)
+    "#idea": "Inbox",         # Map #idea -> Inbox (or change to valid option)
+    "": None,                 # Skip empty status
 }
 
 # Rate limiting
@@ -54,16 +72,26 @@ def clean_value(value: str) -> str:
 def map_record(notion_record: dict, project_id: str = None) -> dict:
     """Mappa ett Notion-record till Airtable-format"""
     fields = {}
-    
+
     for notion_key, airtable_key in FIELD_MAPPING.items():
         value = notion_record.get(notion_key, "")
         if value:  # Skippa tomma värden
-            fields[airtable_key] = clean_value(value)
-    
+            cleaned = clean_value(value)
+
+            # Special handling for Status field - map to valid Airtable options
+            if notion_key == "status":
+                mapped_status = STATUS_MAPPING.get(cleaned)
+                if mapped_status is None:
+                    # Skip status if not in mapping or mapped to None
+                    continue
+                cleaned = mapped_status
+
+            fields[airtable_key] = cleaned
+
     # Lägg till PROJECT om vi har ett ID
     if project_id:
         fields["PROJECT"] = [project_id]
-    
+
     return {"fields": fields}
 
 
@@ -71,21 +99,21 @@ def create_project_if_needed(session: requests.Session) -> str:
     """Kolla om PROJECT finns, annars skapa"""
     # Först kolla om projektet redan finns
     url = f"https://api.airtable.com/v0/{BASE_ID}/PROJECT"
-    params = {"filterByFormula": f"{{Name}}='{PROJECT_NAME}'"}
-    
+    params = {"filterByFormula": f"{{{PROJECT_NAME_FIELD}}}='{PROJECT_NAME}'"}
+
     response = session.get(url, params=params)
-    
+
     if response.status_code == 200:
         data = response.json()
         if data.get("records"):
             record_id = data["records"][0]["id"]
             print(f"✅ Projekt '{PROJECT_NAME}' finns redan (ID: {record_id})")
             return record_id
-    
+
     # Skapa projektet om det inte finns
     print(f"📁 Skapar projekt '{PROJECT_NAME}'...")
-    response = session.post(url, json={"fields": {"Name": PROJECT_NAME}})
-    
+    response = session.post(url, json={"fields": {PROJECT_NAME_FIELD: PROJECT_NAME}})
+
     if response.status_code == 200:
         record_id = response.json()["id"]
         print(f"✅ Projekt skapat (ID: {record_id})")
