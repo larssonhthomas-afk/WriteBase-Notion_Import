@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Upload images to Airtable from Notion export
+Upload images to Airtable ASSET table and link to DOCUMENT
 
-Matches images to Airtable records using the first 8 characters of the Notion ID.
+Flow:
+1. Upload image to ASSET table (Attachment field)
+2. Get record ID (recXXX) and attachment ID (attXXX)
+3. Update DOCUMENT Content field with markdown link: ![Caption](asset:recID:attID)
 
 Usage:
-    python3 upload_images_to_airtable.py [--use-imgbb]
-
-Options:
-    --use-imgbb    Upload images to imgbb.com first (for private repos)
+    AIRTABLE_API_KEY=your_key python3 upload_images_to_airtable.py
 
 Requirements:
     pip3 install requests
@@ -18,7 +18,6 @@ import os
 import re
 import sys
 import time
-import base64
 import warnings
 import requests
 from pathlib import Path
@@ -28,18 +27,15 @@ from collections import defaultdict
 warnings.filterwarnings("ignore", message="urllib3 v2 only supports OpenSSL")
 
 # === CONFIGURATION ===
-# API keys from environment variables
 AIRTABLE_API_KEY = os.environ.get("AIRTABLE_API_KEY", "")
 BASE_ID = os.environ.get("AIRTABLE_BASE_ID", "app7rJKwiEkVKn79v")
-TABLE_NAME = "DOCUMENT"
+
+# Tables
+DOCUMENT_TABLE = "DOCUMENT"
+ASSET_TABLE = "ASSET"
 
 # Image configuration
 IMAGES_DIR = Path("./notion_export/images")
-IMAGE_FIELD = "Images"  # Airtable attachment field name
-
-# imgbb.com API (free image hosting)
-# Get your API key at: https://api.imgbb.com/
-IMGBB_API_KEY = ""  # Set this or use environment variable IMGBB_API_KEY
 
 # GitHub configuration for public URLs
 GITHUB_OWNER = "larssonhthomas-afk"
@@ -48,32 +44,39 @@ GITHUB_BRANCH = "main"
 GITHUB_IMAGE_PATH = "notion_export/images"
 
 # Rate limiting
-DELAY_BETWEEN_REQUESTS = 0.25  # seconds
+DELAY_BETWEEN_REQUESTS = 0.3  # seconds
 
 
 def get_github_raw_url(filename: str) -> str:
     """Generate GitHub raw URL for an image file"""
-    # URL-encode spaces and special characters
     encoded_filename = filename.replace(" ", "%20")
     return f"https://raw.githubusercontent.com/{GITHUB_OWNER}/{GITHUB_REPO}/{GITHUB_BRANCH}/{GITHUB_IMAGE_PATH}/{encoded_filename}"
 
 
 def extract_notion_id_prefix(filename: str) -> str:
     """Extract the first 8 characters (Notion ID prefix) from filename"""
-    # Format: {notion_id_8_chars}_{original_name}.ext
     match = re.match(r'^([a-f0-9]{8})_', filename)
     return match.group(1) if match else None
 
 
+def get_image_caption(filename: str) -> str:
+    """Extract a clean caption from the filename"""
+    # Remove notion_id prefix and extension
+    match = re.match(r'^[a-f0-9]{8}_(.+)\.[^.]+$', filename)
+    if match:
+        caption = match.group(1)
+        # Clean up underscores and common patterns
+        caption = caption.replace("_", " ")
+        return caption
+    return filename
+
+
 def get_images_by_notion_id() -> dict:
-    """
-    Scan images directory and group by Notion ID prefix.
-    Returns: {notion_id_prefix: [list of image files]}
-    """
+    """Scan images directory and group by Notion ID prefix"""
     images = defaultdict(list)
 
     if not IMAGES_DIR.exists():
-        print(f"Images directory not found: {IMAGES_DIR}")
+        print(f"  Images directory not found: {IMAGES_DIR}")
         return images
 
     for img_file in IMAGES_DIR.iterdir():
@@ -85,14 +88,50 @@ def get_images_by_notion_id() -> dict:
     return images
 
 
-def find_airtable_record(session: requests.Session, notion_id_prefix: str) -> dict:
-    """
-    Find Airtable record where Notion_ID starts with the given prefix.
-    Returns the record or None.
-    """
-    url = f"https://api.airtable.com/v0/{BASE_ID}/{TABLE_NAME}"
+def check_github_url_accessible(url: str) -> bool:
+    """Check if a GitHub raw URL is accessible"""
+    try:
+        response = requests.head(url, timeout=5)
+        return response.status_code == 200
+    except:
+        return False
 
-    # Use SEARCH function to find records where Notion_ID starts with prefix
+
+def create_asset_record(session: requests.Session, image_url: str, caption: str) -> tuple:
+    """
+    Create a new record in ASSET table with the image.
+    Returns (record_id, attachment_id) or (None, None) on failure.
+    """
+    url = f"https://api.airtable.com/v0/{BASE_ID}/{ASSET_TABLE}"
+
+    payload = {
+        "fields": {
+            "Caption": caption,
+            "Attachment": [{"url": image_url}],
+            "Type": "Image"
+        }
+    }
+
+    response = session.post(url, json=payload)
+
+    if response.status_code == 200:
+        data = response.json()
+        record_id = data["id"]
+        # Get attachment ID from the response
+        attachments = data.get("fields", {}).get("Attachment", [])
+        if attachments:
+            attachment_id = attachments[0].get("id", "")
+            return record_id, attachment_id
+        return record_id, None
+    else:
+        print(f"      ASSET create failed: {response.status_code} - {response.text[:150]}")
+        return None, None
+
+
+def find_document_record(session: requests.Session, notion_id_prefix: str) -> dict:
+    """Find DOCUMENT record where Notion_ID starts with the given prefix"""
+    url = f"https://api.airtable.com/v0/{BASE_ID}/{DOCUMENT_TABLE}"
+
     formula = f"SEARCH('{notion_id_prefix}', {{Notion_ID}}) = 1"
     params = {
         "filterByFormula": formula,
@@ -106,23 +145,26 @@ def find_airtable_record(session: requests.Session, notion_id_prefix: str) -> di
         if data.get("records"):
             return data["records"][0]
     else:
-        print(f"  API error: {response.status_code} - {response.text[:100]}")
+        print(f"      API error: {response.status_code} - {response.text[:100]}")
 
     return None
 
 
-def update_record_with_images(session: requests.Session, record_id: str, image_urls: list) -> bool:
+def update_document_content(session: requests.Session, record_id: str, current_content: str, image_links: list) -> bool:
     """
-    Update an Airtable record with image attachments.
+    Update DOCUMENT Content field by appending image links.
     """
-    url = f"https://api.airtable.com/v0/{BASE_ID}/{TABLE_NAME}/{record_id}"
+    url = f"https://api.airtable.com/v0/{BASE_ID}/{DOCUMENT_TABLE}/{record_id}"
 
-    # Format for Airtable attachments
-    attachments = [{"url": url} for url in image_urls]
+    # Append image links to content
+    new_content = current_content
+    if new_content and not new_content.endswith("\n"):
+        new_content += "\n"
+    new_content += "\n".join(image_links)
 
     payload = {
         "fields": {
-            IMAGE_FIELD: attachments
+            "Content": new_content
         }
     }
 
@@ -131,66 +173,22 @@ def update_record_with_images(session: requests.Session, record_id: str, image_u
     if response.status_code == 200:
         return True
     else:
-        print(f"  Update failed: {response.status_code} - {response.text[:200]}")
+        print(f"      Update failed: {response.status_code} - {response.text[:150]}")
         return False
-
-
-def check_github_url_accessible(url: str) -> bool:
-    """Check if a GitHub raw URL is accessible (repo is public)"""
-    try:
-        response = requests.head(url, timeout=5)
-        return response.status_code == 200
-    except:
-        return False
-
-
-def upload_to_imgbb(image_path: Path) -> str:
-    """
-    Upload an image to imgbb.com and return the URL.
-    Returns None on failure.
-    """
-    api_key = IMGBB_API_KEY or os.environ.get("IMGBB_API_KEY", "")
-
-    if not api_key:
-        return None
-
-    url = "https://api.imgbb.com/1/upload"
-
-    with open(image_path, "rb") as f:
-        image_data = base64.b64encode(f.read()).decode("utf-8")
-
-    payload = {
-        "key": api_key,
-        "image": image_data,
-        "name": image_path.stem
-    }
-
-    try:
-        response = requests.post(url, data=payload, timeout=30)
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("success"):
-                return data["data"]["url"]
-    except Exception as e:
-        print(f"    imgbb upload error: {e}")
-
-    return None
 
 
 def main():
-    use_imgbb = "--use-imgbb" in sys.argv
-
-    print("=" * 50)
-    print("Upload Notion Images to Airtable")
-    print("=" * 50)
+    print("=" * 55)
+    print("Upload Notion Images to Airtable (ASSET + DOCUMENT)")
+    print("=" * 55)
     print()
 
     # Check for required API key
     if not AIRTABLE_API_KEY:
         print("ERROR: AIRTABLE_API_KEY environment variable not set.")
         print()
-        print("Set it with:")
-        print("  export AIRTABLE_API_KEY=your_api_key")
+        print("Run with:")
+        print("  AIRTABLE_API_KEY=your_key python3 upload_images_to_airtable.py")
         print()
         return
 
@@ -206,40 +204,19 @@ def main():
         print("No images found to upload.")
         return
 
-    # Determine upload method
-    if use_imgbb:
-        api_key = IMGBB_API_KEY or os.environ.get("IMGBB_API_KEY", "")
-        if not api_key:
-            print("ERROR: imgbb API key not set.")
-            print()
-            print("Get a free API key at: https://api.imgbb.com/")
-            print("Then either:")
-            print("  1. Set IMGBB_API_KEY in this script")
-            print("  2. Set environment variable: export IMGBB_API_KEY=your_key")
-            return
-        print("Using imgbb.com for image hosting")
-        print()
-    else:
-        # Check if GitHub URLs are accessible
-        first_image = list(images_by_id.values())[0][0]
-        test_url = get_github_raw_url(first_image)
-        print(f"Testing GitHub URL accessibility...")
-        print(f"  URL: {test_url[:80]}...")
+    # Check GitHub URL accessibility
+    first_image = list(images_by_id.values())[0][0]
+    test_url = get_github_raw_url(first_image)
+    print(f"Testing GitHub URL accessibility...")
 
-        if not check_github_url_accessible(test_url):
-            print()
-            print("ERROR: GitHub raw URLs are not accessible.")
-            print("This usually means the repository is private.")
-            print()
-            print("Options:")
-            print("  1. Make the repository public, then run this script again")
-            print("  2. Use imgbb: python3 upload_images_to_airtable.py --use-imgbb")
-            print("     (Requires free API key from https://api.imgbb.com/)")
-            print("  3. Upload images manually to Airtable")
-            return
-
-        print("  GitHub URLs are accessible")
+    if not check_github_url_accessible(test_url):
         print()
+        print("ERROR: GitHub raw URLs are not accessible.")
+        print("Make sure the repository is public and images are pushed to main.")
+        return
+
+    print("  GitHub URLs are accessible")
+    print()
 
     # Setup Airtable session
     session = requests.Session()
@@ -252,72 +229,73 @@ def main():
     print("Processing images...")
     print()
 
-    success_count = 0
+    assets_created = 0
+    documents_updated = 0
     not_found_count = 0
     error_count = 0
-    upload_errors = 0
 
     for notion_id_prefix, image_files in images_by_id.items():
         print(f"  [{notion_id_prefix}] {len(image_files)} image(s)")
 
-        # Find matching Airtable record
-        record = find_airtable_record(session, notion_id_prefix)
+        # Find matching DOCUMENT record
+        doc_record = find_document_record(session, notion_id_prefix)
 
-        if not record:
-            print(f"    No Airtable record found")
+        if not doc_record:
+            print(f"    No DOCUMENT record found")
             not_found_count += 1
             time.sleep(DELAY_BETWEEN_REQUESTS)
             continue
 
-        record_id = record["id"]
-        title = record.get("fields", {}).get("Title", "Untitled")[:40]
-        print(f"    Found: {title}...")
+        doc_id = doc_record["id"]
+        doc_title = doc_record.get("fields", {}).get("Title", "Untitled")[:40]
+        current_content = doc_record.get("fields", {}).get("Content", "")
+        print(f"    Found: {doc_title}...")
 
-        # Generate URLs for all images
-        image_urls = []
-        for img in image_files:
-            if use_imgbb:
-                img_path = IMAGES_DIR / img
-                print(f"    Uploading {img} to imgbb...")
-                url = upload_to_imgbb(img_path)
-                if url:
-                    image_urls.append(url)
-                else:
-                    print(f"    Failed to upload {img}")
-                    upload_errors += 1
-                time.sleep(0.5)  # Rate limit for imgbb
+        # Process each image for this document
+        image_links = []
+        for img_filename in image_files:
+            caption = get_image_caption(img_filename)
+            image_url = get_github_raw_url(img_filename)
+
+            print(f"      Creating ASSET: {caption}...")
+
+            # Create ASSET record
+            rec_id, att_id = create_asset_record(session, image_url, caption)
+            time.sleep(DELAY_BETWEEN_REQUESTS)
+
+            if rec_id and att_id:
+                # Create markdown link
+                markdown_link = f"![{caption}](asset:{rec_id}:{att_id})"
+                image_links.append(markdown_link)
+                assets_created += 1
+                print(f"        Created: {rec_id}")
             else:
-                image_urls.append(get_github_raw_url(img))
+                error_count += 1
 
-        if not image_urls:
-            print(f"    No images to attach")
-            error_count += 1
-            continue
-
-        # Update record
-        if update_record_with_images(session, record_id, image_urls):
-            print(f"    Attached {len(image_urls)} image(s) to Airtable")
-            success_count += 1
-        else:
-            error_count += 1
+        # Update DOCUMENT with image links
+        if image_links:
+            print(f"    Updating DOCUMENT with {len(image_links)} image link(s)...")
+            if update_document_content(session, doc_id, current_content, image_links):
+                documents_updated += 1
+                print(f"    Done!")
+            else:
+                error_count += 1
 
         time.sleep(DELAY_BETWEEN_REQUESTS)
 
     # Summary
     print()
-    print("=" * 50)
+    print("=" * 55)
     print("Summary")
-    print("=" * 50)
-    print(f"  Records updated:   {success_count}")
-    print(f"  Records not found: {not_found_count}")
-    print(f"  Airtable errors:   {error_count}")
-    if use_imgbb:
-        print(f"  Upload errors:     {upload_errors}")
+    print("=" * 55)
+    print(f"  ASSET records created:   {assets_created}")
+    print(f"  DOCUMENT records updated: {documents_updated}")
+    print(f"  Documents not found:     {not_found_count}")
+    print(f"  Errors:                  {error_count}")
     print()
 
     if not_found_count > 0:
-        print("Note: 'Not found' means no Airtable record matched the Notion ID prefix.")
-        print("This can happen if those records weren't imported or have different IDs.")
+        print("Note: 'Not found' means no DOCUMENT record matched the Notion ID prefix.")
 
 
 if __name__ == "__main__":
