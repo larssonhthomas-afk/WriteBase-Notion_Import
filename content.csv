@@ -1,0 +1,390 @@
+notion_id,title,status,content_type,ai_keywords,ai_summary,author,link,publish_date,created_time,year,tags,body,images,broken_images,child_pages,source_file
+20efc2711b8080f2b218d68ec3c186a6,🦊 Räven vaktar hönshuset – om ansvarsflykt och IT-säkerhet - Video,Published,Content,"Customer-Centric Approach, Problem Identification","IT-säkerhetschefens erfarenheter belyser vikten av rollseparering och budgetansvar för att undvika säkerhetsbrister. Humor används för att illustrera hur bristande förståelse för IT-säkerhet kan leda till allvarliga konsekvenser, inklusive ransomware-attacker. Tre centrala lärdomar betonas: verklig rollseparering, tillgång till egen budget och grundläggande säkerhetsåtgärder som patchning och brandväggar.",,,"October 6, 2025","June 10, 2025 1:48 PM",2025,,"**🦊 Räven vaktar hönshuset – om ansvarsflykt och IT-säkerhet**
+
+### **Titel: Informations- och cybersäkerhetskultur**
+
+**Format: Intervju**
+
+**Scen 1 – Mörkt rum. Ansiktet skymt. Förvrängd röst. “ITSÄK” visas i undertext.**
+
+**INT:**
+
+Berätta – hur hamnade du här?
+
+**ITSÄK:**
+
+Jag var IT-säkerhetschef på ett stort svenskt bolag.
+
+Mitt uppdrag var att hålla oss borta från tidningsrubriker och viten från IMY, **Integritetsskyddsmyndigheten**.
+
+“No expense reserved”, sa de. Men det var bara snack.
+
+**INT:**
+
+Så… det gick inte riktigt så?
+
+**ITSÄK:**
+
+Nej. Jag fick aldrig egen budget.
+
+Den låg under finanschefen – en man som inte kunde skilja en skrivare från en server.
+
+Vi hamnade i pressen. Surprise.
+
+Minns VD:n som skällde ut mig efter noter.
+
+Jag frågade:
+
+**“Kan jag få budget till det jag flaggat för i ett år?”**
+
+Han svarade surt:
+
+**“För vad då? IT-säkerhet. Vad är det ens?”**
+
+**“Spelar ingen roll, det finns inga pengar.”**
+
+Jag försökte säga att IT säkerhet handlar om mer än att inte hamna i tidiningarna. Men då hade han redan mentalt lämnat mötet.
+
+---
+
+### **Scen 2 – Presskonferens. VD vid podiet.**
+
+**VD:**
+
+“Vi har gjort ett historiskt resultat.
+
+Maximal avkastning.”
+
+(*Applåder. Lätt skratt.*)
+
+ITSÄK: Och så var aktieägarna kortsiktigt nöjda.
+
+---
+
+### **Scen 3 – Tillbaka i intervjurummet.**
+
+**INT:**
+
+Var det då du valde att sluta?
+
+**ITSÄK:**
+
+Ja, tydligen fanns det pengar till dom själva, men inte till att skydda bolaget.
+
+**INT:**
+
+Okej, vad är dina tips för att inte hamna här?
+
+IT-SÄK
+
+Vad skulle farfar gjort?
+
+Farfar?
+
+Ja du vet. Farfarsprincipen. Fyra ögon. Att du själv kan inte skicka in en faktura till bolaget och godkänna den.
+
+Den principen borde gälla beslut kring IT säkerhet också. Separera ansvaret. 
+
+När det saknas rollseparering hamnar vi i läget: Då vaktar räven hönshuset. 
+
+Humoriserad manusversion – punchigare och roligare
+
+**Format:** Intervju + satiriska cutaways, on‑screen-text och ljudeffekter
+
+**Ton:** Torr humor, underdriven leverans, visuella blinkningar
+
+---
+
+### Kall öppning – “Räven” gör entré
+
+> Ljud: Spänningsmusik som plötsligt klipps av av ett hönskackel
+> 
+
+Bild på rubrik: ""Räven vaktar hönshuset"" med en tecknad räv i slips. En skylt poppar upp: ""Det här är inte en dokumentär om rävar. Tyvärr.""
+
+Klipp till siluettintervjun.
+
+**INT:** Berätta – hur hamnade du här?
+
+**ITSÄK:** Jag följde doften av underfinansierad säkerhet. Och gratis bullar på fredagar.
+
+On‑screen text: ""Gratis bullar ≠ gratis säkerhet""
+
+---
+
+### Scen 1 – Budgetgymnastik
+
+> Ljud: Kassalåda “ka‑ching”, direkt följt av Windows‑felpling
+> 
+
+**ITSÄK:** ""No expense reserved"" sa de. Det är som ""all you can eat"" fast du får bara titta på menyn.
+
+Cutaway: CFO pekar på en skrivare och säger ""stabil server"". Skrivaren börjar skriva ut aktieutdelningar.
+
+On‑screen text: ""Rollseparering, någon?""
+
+**INT:** Så… det gick inte riktigt så?
+
+**ITSÄK:** Jag fick aldrig egen budget. Jag hade en post‑it. Den var gul. Det var min roadmap.
+
+---
+
+### Scen 2 – Presskonferensen
+
+> Ljud: Högtidlig fanfar som övergår i modemljud från 90‑talet
+> 
+
+**VD:** ""Vi har gjort ett historiskt resultat. Maximal avkastning!""
+
+Klipp till hönshus. En räv i kostym delar ut dividend‑majs till hönsen. Hönsen applåderar. En höna frågar: ""Vad är en patch?""
+
+On‑screen text: ""Patch Tuesday ≠ Taco Tuesday""
+
+---
+
+### Scen 3 – Brorsonens bootcamp
+
+> Ljud: Ukulele‑jingle, överlagd Comic Sans‑grafik ""CYBERSÄK 101""
+> 
+
+**ITSÄK:** Brorsan till VD:n kom med sitt ""utbildningspaket"". Random quiz från nätet. Fråga 1: ""Vad är ett lösenord?"" Svarsalternativ: A) ""1234"" B) ""12345"" C) ""Password"" D) ""Alla ovan""
+
+Fakturan? Samma som min årsbudget. Med emoji i referensraden.
+
+On‑screen text: ""Äkta story. Tyvärr.""
+
+---
+
+### Scen 4 – När det small
+
+> Ljud: Klassisk film‑""inception‑BWAAAM"" och ett hönskackel i slow motion
+> 
+
+Cutaway: Servern står öppen mot internet. En dörrmatta med texten ""Welcome, threat actors"". Kamera zoomar in på en uppdateringsruta: ""Uppdatera? – Senare"". Undertext: ""Senare sedan 2017""
+
+**ITSÄK:** Ingen patch. Ingen brandvägg. Första ransomware‑attacken.
+
+**INT:** Första?
+
+**ITSÄK:** Ja. Vi gick från ""Defense in depth"" till ""Offense in debt"".
+
+---
+
+### Scen 5 – Lärdomar utan pekpinnar
+
+> Ljud: Klick från en säkerhetsbrytare, mjuk musik
+> 
+
+Grafik: ""Tre saker innan du tar ansvar för IS/IT‑säkerhet""
+
+1. Rollseparering på riktigt. Den som maxar utdelning ska inte granska sig själv. Det är som att låta räven utforma hönsens nattvaktsschema.
+2. Egen budget med mandat. Post‑it är inte ett styrmedel.
+3. Baslinor först: patchning, brandväggar, backup som faktiskt återläses. Taco Tuesday är valfri. Patch Tuesday är inte det.
+
+On‑screen text i hörnet: ""Backup utan restore = skärmsläckare för samvetet""
+
+---
+
+### Avrundning – punchline och call‑to‑action
+
+**INT:** Om du fick säga en sak till din gamla ledning?
+
+**ITSÄK:** ""Säkerhet är en kostnad… tills det blir en siffra i pressmeddelandet. Då är det en investering du önskar att du redan gjort.""
+
+Räven i slips tittar in i kameran. Paus. Tar av sig rävhuvudet. Det är CFO.
+
+On‑screen text: ""Räven var vi hela tiden. Plottwist.""
+
+> Slutbild: Lista med ""Gör imorgon"" blinkar in: 1) Separera roller 2) Ring säkerhetschefen 3) Patcha. Sen credits med hönskackel‑remix
+>",,,,/home/claude/notion_sample/🦊 Räven vaktar hönshuset – om ansvarsflykt och IT- 20efc2711b8080f2b218d68ec3c186a6.md
+225fc2711b808006b45acf16dfdd3406,🦊 Räven vaktar hönshuset – om ansvarsflykt och IT-säkerhet,Published,Content,"Problem Identification, Strategic Adaptation","Budget, beslut och kontroll bör inte ligga på samma ställe för att undvika ansvarsflykt inom IT-säkerhet. Rollseparering är avgörande för trovärdig säkerhet, och budgeten bör placeras där ansvaret finns. Förebyggande åtgärder är viktiga för att undvika incidenter och bevara kundernas förtroende.",,,"October 6, 2025","July 3, 2025 11:45 PM",2025,,"**🦊 Räven vaktar hönshuset. Om ansvarsflykt och IT-säkerhet**
+
+*Om varför budget, beslut och kontroll inte ska ligga på samma ställe*
+
+---
+
+> “Om du beslutar om att gasa, då ska du inte också vara den som installerar bromsarna.”
+> 
+
+I många organisationer är det just så det ser ut. Budget, beslut och belöningar ligger på samma ställe, vilket gör säkerhetsarbetet till en eftertanke snarare än en integrerad del av styrningen.
+
+Om du är CFO och ansvarar för maximal aktieutdelning, så är varje investering, även i IT-säkerhet, ett hot mot det kortsiktiga resultatet och kravet på utdelning mot aktieägarna. Då är det frestande att vänta in nästa revision hellre än att förebygga. Men det finns regler, det finns lagar och de kommer förr eller senare att bli dyrare än det arbete man enkelt hade kunnat göra i tid.
+
+Som man brukar säga: *A stitch in time saves nine.* Inget kunde vara mer sant när det gäller IT-säkerhet.
+
+### **Tre sätt att tänka rätt om IT-säkerhet**
+
+**1. Separera rollerna – alltid**
+
+Den som driver affär eller utdelning ska inte också ansvara för att granska sig själv.
+
+**Rollseparering är grundläggande för trovärdig säkerhet.**
+
+**2. Lägg budget där ansvaret finns**
+
+Om säkerhetschefen bär det juridiska och operationella ansvaret, måste budgeten ligga hos dem.
+
+**Allt annat är ansvarsflykt.**
+
+**3. Ta säkerhet på allvar innan det smäller**
+
+Att vänta på en incident, revision eller böter innan något händer är som att köpa brandförsäkring efter att huset brunnit ner.
+**Det kan stilla samvetet, men skadan är redan skedd och kundernas förtroende är svårt att reparera.**
+
+När styrning och kontroll hamnar hos samma person uppstår en tyst risk som inte syns i rapporter eller dashboards.
+
+Att anamma farfarsprincipen, fyra ögon för ett beslut, är klokt även här. Vilka beslut som innebär vilka risker tar vi och att vi gemensamt förstår dem. Men det viktigaste är kanske att inte samma person som tar ut utdelningen inte begränsar arbetet med att vara compliant. 
+
+Det är då det händer:
+
+> Räven har redan tagit plats inne i hönshuset, och ingen vågar fråga vem som gav den nyckeln.
+> 
+
+Ingress:
+
+### **🦊 Räven vaktar hönshuset, om ansvarsflykt och IT-säkerhet**
+
+Många företag bär redan på en tyst och osynlig risk.
+
+Säkerhetsarbetet är ofta reaktivt och reducerat till ett sidospår. Det prioriteras först när något redan har hänt, inte innan.
+
+Ett vanligt mönster är att ansvar, budget och kontroll samlas i samma händer. När fokus ligger på kortsiktiga resultat får det förebyggande arbetet stå tillbaka.
+
+Den långsiktiga stabiliteten förloras i jakten på nästa kvartalsrapport.
+
+När räven vaktar hönshuset ser ingen att dörren står öppen.
+
+Läs hela artikeln på min substack
+
+[https://open.substack.com/pub/thomaslarsson/p/raven-vaktar-honshuset-om-ansvarsflykt?r=5kjx3a&utm_campaign=post&utm_medium=web&showWelcomeOnShare=true](https://open.substack.com/pub/thomaslarsson/p/raven-vaktar-honshuset-om-ansvarsflykt?r=5kjx3a&utm_campaign=post&utm_medium=web&showWelcomeOnShare=true)",,,,/home/claude/notion_sample/🦊 Räven vaktar hönshuset – om ansvarsflykt och IT- 225fc2711b808006b45acf16dfdd3406.md
+1ea70aae1c8b48c884e6729fd929fec9,40 Strategy Quote,#reference,,"Growth Mindset, Strategic Adaptation","A strategy is essential due to the unpredictability of the future, as futures markets can only suggest probable events without guaranteeing accuracy.",,,,"December 26, 2024 2:08 PM",,#quotes,"“A strategy is necessary because the future is unpredictable.” — Robert Waterman
+Strategy is necessary because the future is unpredictable. Futures markets are a way to understand probable events, but they can’t predict the future with 100 percent accuracy.
+# References:
+1. https://web.getmatter.com/entry/66579759",,,,/home/claude/notion_sample/40 Strategy Quote 1ea70aae1c8b48c884e6729fd929fec9.md
+077cc5d1ec524c758c26046b31240b99,12 Ways to Prepare your Monolith Before Transitioning to Microservices,Inbox,,"SaaS Transition, digitalization impact",Prepare your monolith for microservices by adopting an API-first approach and breaking down the existing structure into manageable parts. References include resources on splitting a monolith effectively.,,,,"December 26, 2024 2:08 PM",,,"![[Pasted image 20240807233236.png]]
+
+Status: #idea
+Tags: #microservices #monolith
+Working backwards
+Spit the old big Monolith
+API first.
+![[Pasted image 20240825111817.png]]
+# References:
+1. https://www.perplexity.ai/search/splitting-a-monolith-RD6eqvFzSrS7PQficz1dWg
+2. https://semaphoreci.com/blog/monolith-microservices",,"obsidian:Pasted image 20240807233236.png, obsidian:Pasted image 20240825111817.png",,/home/claude/notion_sample/12 Ways to Prepare your Monolith Before Transition 077cc5d1ec524c758c26046b31240b99.md
+52347b1c987d4668a48f43598be19e90,A real problems is the nicest gift you can get,Published,Content,"Customer Insight Gathering, Problem Identification, Real Issue Verification","Problems are valuable gifts that help identify real issues. Key methods to define a problem include interviewing customers, analyzing competitor solutions, sending surveys, reviewing complaints, monitoring social media feedback, and observing product usage to uncover common issues.",,,,"June 3, 2024 7:08 PM",2024,,"Problems are the nicest gift you can get
+
+Don't Solve Imaginary Problems: A Guide to Verifying Real Issues
+
+10 ways to define a problem
+
+1. Interview the customer. Ask what problem they have and why they aren't happy about the solution today.
+2. Understand how five other services or products solves what specific problem?
+
+1. Ask customers what problems they have with current options.
+2. See how five other products solve similar problems.
+3. Send out surveys to learn about customer issues.
+4. Read customer complaints to find common issues.
+5. Check social media for what customers are saying.
+6. Watch customers use your product to find problems.
+
+[Why you want to see everything in imanges or pictures ](A%20real%20problems%20is%20the%20nicest%20gift%20you%20can%20get/Why%20you%20want%20to%20see%20everything%20in%20imanges%20or%20pictu%20331d6f9001644cf29833a00a6c56fc95.md)",,,Why you want to see everything in imanges or pictures ,/home/claude/notion_sample/A real problems is the nicest gift you can get 52347b1c987d4668a48f43598be19e90.md
+168fc2711b8080feb05ad474935800b7,99_9 of companies are structured wrong Is yours,#idea,,"Growth Mindset, Problem Identification, Reflective Strategy Development","Organizational charts can never fully capture the complexity of an organization, but it's important to focus on key influences in decision-making. A forthcoming blog post will present a meta-analysis of over 13,000 teams from 54 studies spanning decades of research.",,,,"December 26, 2024 11:48 AM",,[[organisational_theory]],"The idea that an organisational chart could include every aspects of an organisation is as likley as we explain space with a star-map. There will always be depth to every aspect and relations we dont know about. The same with organisational chart.
+But you can alwys descide on whats important and describe just that. In this case is what is influenced on the descision.
+
+![[Pasted image 20240905221437.png]]
+In tomorrow’s blog post, we’re diving into a groundbreaking meta-analysis that shatters conventional wisdom:
+
+↳ 13,000+ teams
+
+↳ 54 studies
+
+↳ Decades of research",,obsidian:Pasted image 20240905221437.png,,/home/claude/notion_sample/99_9 of companies are structured wrong Is yours 168fc2711b8080feb05ad474935800b7.md
+161fc2711b80809f897acd332c39c152,2024 in Rewind,Inbox,,"Collaborative Innovation, Customer-Centric Approach","2024 focused on simplifying complexity through practical tools and workshops, achieving recognition as a Miro MVP, and emphasizing the importance of clear business mapping. Looking ahead to 2025, the goal is to help organizations create impactful maps to enhance understanding and decision-making.",,,,"December 19, 2024 1:02 PM",,,"![highlights-card.png](2024%20in%20Rewind/highlights-card.png)
+
+Here's my 2024 LinkedIn Rewind, by Coauthor.studio:
+
+2024 taught me something crucial: A simple map everyone uses beats a perfect model nobody understands.
+
+This year was about bringing clarity to chaos:
+
+→ Joined Forefront to expand our business mapping impact
+
+→ Created practical Miro templates used by hundreds of teams
+
+→ Started English translation of ""Relevant"" (finally!)
+
+→ Led workshops showing how visual tools beat PowerPoint chaos
+
+→ Honored as Miro MVP and Enterprise Advocate
+
+Three posts that captured our core mission:
+
+""Enterprise Architecture is dead!""
+
+Most architecture roles can't answer a simple question: What business value do you bring?
+
+[https://www.linkedin.com/feed/update/urn:li:activity:7147602404014817280/](https://www.linkedin.com/feed/update/urn:li:activity:7147602404014817280/)
+
+""Miroverse Template Launch""
+
+Your Excel chaos in the middle is costing more than you think. Time to build systems you can trust.
+
+[https://www.linkedin.com/feed/update/urn:li:activity:7178139265787174912/](https://www.linkedin.com/feed/update/urn:li:activity:7178139265787174912/)
+
+""Simplify How You Explain Your Business""
+
+The layer you choose dictates how users understand your data. Like Google Maps, show only what matters for action.
+
+[https://www.linkedin.com/feed/update/urn:li:activity:7155225412296495105/](https://www.linkedin.com/feed/update/urn:li:activity:7155225412296495105/)
+
+Big thanks to Cecilia Nordén for our Business Map workshops and to the Miro community for embracing visual thinking. Your willingness to challenge complexity with clarity keeps pushing us forward.
+
+Looking ahead: 2025 is about helping more organizations create maps that matter. Our methodology is proven, our templates are ready, and the Business Map movement is growing. Time to replace complexity with clarity.
+
+Remember: If you can't explain your business with a simple map, you probably don't understand it well enough yourself",highlights-card.png,,,/home/claude/notion_sample/2024 in Rewind 161fc2711b80809f897acd332c39c152.md
+31c7d133724342daa439af9b53a8afaa,A journey of a thousand miles begins with a single step. —Lao Tzu,#reference,Content,"inspirational quotes, motivational insights","A quote by Lao Tzu emphasizes that significant journeys start with a single step, highlighting the importance of taking initial actions toward goals.",,,,"December 26, 2024 11:39 AM",2024,#quotes [[Plan]],A journey of a thousand miles begins with a single step. —Lao Tzu,,,,/home/claude/notion_sample/A journey of a thousand miles begins with a single 31c7d133724342daa439af9b53a8afaa.md
+32b466ef37cd4eaf92fc27485314cc74,3 Tips to Help You Prototype a Service,Inbox,,"Feedback-Driven Solutions, Incremental Progress","Prototype early and often, continuously iterating towards the right solution to enhance service development.",,,,"December 26, 2024 1:26 PM",,,"## Metadata
+
+Status: #reference
+* URL: [https://www.ideo.com/blog/3-tips-to-help-you-prototype-a-service](https://www.ideo.com/blog/3-tips-to-help-you-prototype-a-service)
+* Author: Melanie Bell-Mayeda
+* Publisher: ideo.com
+* Tags: #Prototype
+
+[[Prototype]]
+## Highlights
+* Do it early, do it often, and keep iterating toward the right solution.",,,,/home/claude/notion_sample/3 Tips to Help You Prototype a Service 32b466ef37cd4eaf92fc27485314cc74.md
+191fc2711b808038953de526a0fe06cb,A lot of car companies are soon going out of business,Published,Content,"Courageous Leadership, Strategic Adaptation","Many car companies face imminent failure due to outdated management practices and reliance on rigid planning. The shift towards electric vehicles and rapid technological changes necessitates a more agile approach, including empowering decision-makers, owning supply chains, and reducing overengineering. Companies must adapt quickly to survive against competitors, particularly from China, which has a more integrated and flexible manufacturing ecosystem.",Thomas Larsson,,"February 5, 2025","February 5, 2025 2:44 PM",2025,,"A lot of car companies are soon going out of business
+
+For a long time a Car manufacture had an advantage on the experiences on how to create cars when a new model should be invented. But now I see a big shift that the old structures are in the way. Just the notion that everything could be planned ahead when you create new EV-battieries, motors and the software, internetconnection and interaction changes in months not decades.
+
+Old organisations leans towards to have rigid plan, because that is how it always have been done.
+
+So where does this leave us. As Ford CEO Jim Farley says in this interview. We need to proof that we can create proftible cars within 5 years. And today everything that has to do with a battery in a EV is made in China. And also invention of next gen battery is a Chineese invention and their IP.
+
+Besides that everything Ford and Volkswagen is putting into a car is often created by others such as Bosch, Panasonic and 100 of other vendors. Ford can’t change that software.
+
+In China they change whatever they want, they produce it themself whithin a eco-network of business called China. Yeaph that is seen as ONE mission.
+
+What is the response?
+
+Not one thing.
+
+First is to remove every old thinking of management and start putting the doers into descision-making spots. What could be the risk of doing this? Well I see two outcome. Either you succed to respond and survive. Or you don’t. With today thinking there is only one outcome.
+
+The second is to start owning your own supply chain. Either as a own company, see Tesla, or as a colongromat of Car Manufactors. Batteries can be created in other places. A lot of bets need to be made, but do it together, remember your competitor is whole China, not one Chinese car manufacture.
+
+The third part is to self-sabotage your capability to do things. Don’t overthink everything. Test and do. Learn and redo. Germans problems isn’t engenering. It is overengenering management and relly on SAP. Everything that isn’t done by SAP is done in a PowerPoint and 100 of Excels to for every aspect of the organisation. It is inefficent, proon to errors, and gives almost 0 trust to a quick descision and gives paralyzes in the organisations.
+
+But what do I know?
+
+I’m often just there to extingue a fire and very seldon anyone taking full responsibilty of the situation. I know management dosen’t.
+
+Often called leadership.",,,,/home/claude/notion_sample/A lot of car companies are soon going out of busin 191fc2711b808038953de526a0fe06cb.md
+4edc8123299f4e38823fb677d7b2b7fc,40 (Multiple Choice) Questions You Should Be Able To (Eventually) Answer About Each Item On Your Roadmap,#reference,,"Customer-Centric Approach, Strategic Alignment",No content,,,,"December 26, 2024 2:08 PM",,#Roadmaps,,,,,/home/claude/notion_sample/40 (Multiple Choice) Questions You Should Be Able  4edc8123299f4e38823fb677d7b2b7fc.md
+a2d3476dd44442c3aaf6509539e8c9f5,32 Key Concepts in Systems Thinking and Complexity Theory — unFIX,Inbox,,"Customer-Centric Approach, Strategic Adaptation","Overview of 32 key concepts in systems thinking, highlighting patterns that can be identified in business contexts.",,,,"December 26, 2024 11:58 AM",,,"List of concepts within system thinking.
+Patterns to be found.
+
+[[Patterns of Business (Now)]]",,,,/home/claude/notion_sample/32 Key Concepts in Systems Thinking and Complexity a2d3476dd44442c3aaf6509539e8c9f5.md
+331d6f9001644cf29833a00a6c56fc95,Why you want to see everything in imanges or pictures,,,,,,,,,,,I love patterns.,,,,/home/claude/notion_sample/A real problems is the nicest gift you can get/Why you want to see everything in imanges or pictu 331d6f9001644cf29833a00a6c56fc95.md
