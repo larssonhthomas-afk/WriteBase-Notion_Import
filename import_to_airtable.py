@@ -20,8 +20,10 @@ from pathlib import Path
 warnings.filterwarnings("ignore", message="urllib3 v2 only supports OpenSSL")
 
 # === KONFIGURATION ===
-AIRTABLE_API_KEY = "pat9ReEZaYqZY5m9e.59f37b6fe74a579ccc56879abd34ed14c27c99bd9333226a2f631be03fe2007b"
-BASE_ID = "app7rJKwiEkVKn79v"
+# API keys from environment variables
+import os
+AIRTABLE_API_KEY = os.environ.get("AIRTABLE_API_KEY", "")
+BASE_ID = os.environ.get("AIRTABLE_BASE_ID", "app7rJKwiEkVKn79v")
 TABLE_NAME = "DOCUMENT"
 PROJECT_NAME = "Notion_Import"
 
@@ -139,10 +141,18 @@ def upload_batch(session: requests.Session, records: list) -> tuple[int, int]:
 
 
 def main():
+    # Check for required API key
+    if not AIRTABLE_API_KEY:
+        print("❌ AIRTABLE_API_KEY environment variable not set.")
+        print()
+        print("Set it with:")
+        print("  export AIRTABLE_API_KEY=your_api_key")
+        sys.exit(1)
+
     if len(sys.argv) < 2:
         print("Användning: python3 import_to_airtable.py ./output/content.json")
         sys.exit(1)
-    
+
     json_path = Path(sys.argv[1])
     if not json_path.exists():
         print(f"❌ Filen finns inte: {json_path}")
