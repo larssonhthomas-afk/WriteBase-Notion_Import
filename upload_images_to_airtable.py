@@ -28,8 +28,9 @@ from collections import defaultdict
 warnings.filterwarnings("ignore", message="urllib3 v2 only supports OpenSSL")
 
 # === CONFIGURATION ===
-AIRTABLE_API_KEY = "pat9ReEZaYqZY5m9e.59f37b6fe74a579ccc56879abd34ed14c27c99bd9333226a2f631be03fe2007b"
-BASE_ID = "app7rJKwiEkVKn79v"
+# API keys from environment variables
+AIRTABLE_API_KEY = os.environ.get("AIRTABLE_API_KEY", "")
+BASE_ID = os.environ.get("AIRTABLE_BASE_ID", "app7rJKwiEkVKn79v")
 TABLE_NAME = "DOCUMENT"
 
 # Image configuration
@@ -183,6 +184,15 @@ def main():
     print("Upload Notion Images to Airtable")
     print("=" * 50)
     print()
+
+    # Check for required API key
+    if not AIRTABLE_API_KEY:
+        print("ERROR: AIRTABLE_API_KEY environment variable not set.")
+        print()
+        print("Set it with:")
+        print("  export AIRTABLE_API_KEY=your_api_key")
+        print()
+        return
 
     # Scan images
     print(f"Scanning images in {IMAGES_DIR}...")
