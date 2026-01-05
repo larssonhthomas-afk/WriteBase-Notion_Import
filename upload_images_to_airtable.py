@@ -107,8 +107,7 @@ def create_asset_record(session: requests.Session, image_url: str, caption: str)
     payload = {
         "fields": {
             "Caption": caption,
-            "Attachment": [{"url": image_url}],
-            "Type": "Image"
+            "Attachment": [{"url": image_url}]
         }
     }
 
