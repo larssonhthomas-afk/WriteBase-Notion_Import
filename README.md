@@ -1,32 +1,32 @@
 # Notion → Airtable Import
 
-Importera Notion-export till Airtable med bilder.
+Import Notion exports to Airtable with images.
 
-## Översikt
+## Overview
 
-Denna process tar en Notion-export och importerar den till Airtable:
-1. **Bilder** → ASSET-tabellen
-2. **Dokument** → DOCUMENT-tabellen (med bildlänkar ersatta)
+This process takes a Notion export and imports it to Airtable:
+1. **Images** → ASSET table
+2. **Documents** → DOCUMENT table (with image links replaced)
 
-## Förutsättningar
+## Prerequisites
 
 - Python 3.9+
-- `requests`-biblioteket: `pip3 install requests`
-- Airtable API-nyckel från https://airtable.com/create/tokens
-- GitHub-konto (för bildhosting)
+- `requests` library: `pip3 install requests`
+- Airtable API key from https://airtable.com/create/tokens
+- GitHub account (for image hosting)
 
-## Airtable-struktur
+## Airtable Structure
 
-### ASSET-tabell
-| Fält | Typ |
-|------|-----|
+### ASSET table
+| Field | Type |
+|-------|------|
 | Caption | Text |
 | Attachment | Attachment |
-| Type | Formula (beräknat) |
+| Type | Formula (computed) |
 
-### DOCUMENT-tabell
-| Fält | Typ |
-|------|-----|
+### DOCUMENT table
+| Field | Type |
+|-------|------|
 | Title | Text |
 | Content | Long text |
 | Status | Single select |
@@ -35,38 +35,38 @@ Denna process tar en Notion-export och importerar den till Airtable:
 | Publish_Date | Text |
 | PROJECT | Link to PROJECT |
 
-### PROJECT-tabell
-| Fält | Typ |
-|------|-----|
+### PROJECT table
+| Field | Type |
+|-------|------|
 | Title | Text |
 
-## Steg-för-steg
+## Step-by-Step Guide
 
-### 1. Exportera från Notion
+### 1. Export from Notion
 
-1. Öppna Notion
-2. Gå till **Settings & Members** → **Settings**
-3. Scrolla ned till **Export all workspace content**
-4. Välj **Markdown & CSV**
-5. Ladda ner ZIP-filen
+1. Open Notion
+2. Go to **Settings & Members** → **Settings**
+3. Scroll down to **Export all workspace content**
+4. Select **Markdown & CSV**
+5. Download the ZIP file
 
-### 2. Förbered exporten
+### 2. Prepare the Export
 
-1. Packa upp ZIP-filen
-2. Kör `notion_to_airtable.py` för att konvertera:
+1. Unzip the ZIP file
+2. Run `notion_to_airtable.py` to convert:
 
 ```bash
-python3 notion_to_airtable.py /sökväg/till/notion/export ./notion_export
+python3 notion_to_airtable.py /path/to/notion/export ./notion_export
 ```
 
-Detta skapar:
-- `notion_export/content.json` - Alla dokument
-- `notion_export/images/` - Alla bilder med Notion ID-prefix
-- `notion_export/broken_images.txt` - Bilder som saknas
+This creates:
+- `notion_export/content.json` - All documents
+- `notion_export/images/` - All images with Notion ID prefix
+- `notion_export/broken_images.txt` - Missing images
 
-### 3. Ladda upp till GitHub
+### 3. Upload to GitHub
 
-Bilderna måste vara tillgängliga via publika URL:er:
+Images must be accessible via public URLs:
 
 ```bash
 git add notion_export/
@@ -74,91 +74,91 @@ git commit -m "Add Notion export"
 git push origin main
 ```
 
-**Viktigt:** Repot måste vara **publikt** för att bildlänkarna ska fungera.
+**Important:** The repository must be **public** for image links to work.
 
-### 4. Konfigurera scriptet
+### 4. Configure the Script
 
-Öppna `full_import.py` och kontrollera att dessa värden stämmer:
+Open `full_import.py` and verify these values:
 
 ```python
-BASE_ID = "app7rJKwiEkVKn79v"  # Din Airtable Base ID
-GITHUB_OWNER = "ditt-användarnamn"
-GITHUB_REPO = "ditt-repo"
+BASE_ID = "app7rJKwiEkVKn79v"  # Your Airtable Base ID
+GITHUB_OWNER = "your-username"
+GITHUB_REPO = "your-repo"
 GITHUB_BRANCH = "main"
 ```
 
-### 5. Kör importen
+### 5. Run the Import
 
 ```bash
-AIRTABLE_API_KEY=din_api_nyckel python3 full_import.py
+AIRTABLE_API_KEY=your_api_key python3 full_import.py
 ```
 
-Scriptet kommer att:
-1. Ladda upp alla bilder till ASSET-tabellen
-2. Skapa en mappning mellan bildnamn och Airtable-ID:n
-3. Importera alla dokument till DOCUMENT-tabellen
-4. Ersätta bildlänkar med `![caption](asset:recID:attID)`-format
+The script will:
+1. Upload all images to the ASSET table
+2. Create a mapping between image names and Airtable IDs
+3. Import all documents to the DOCUMENT table
+4. Replace image links with `![caption](asset:recID:attID)` format
 
-### 6. Verifiera
+### 6. Verify
 
-Kontrollera i Airtable att:
-- ASSET-tabellen innehåller alla bilder
-- DOCUMENT-tabellen innehåller alla dokument
-- Bildlänkar i Content-fältet har formatet `![caption](asset:recXXX:attXXX)`
+Check in Airtable that:
+- ASSET table contains all images
+- DOCUMENT table contains all documents
+- Image links in the Content field have the format `![caption](asset:recXXX:attXXX)`
 
-## Felsökning
+## Troubleshooting
 
 ### "GitHub URLs are not accessible"
-- Kontrollera att repot är publikt
-- Kontrollera att bilderna är pushade till main-branchen
-- Vänta några minuter om du nyss gjort repot publikt
+- Verify the repository is public
+- Verify images are pushed to the main branch
+- Wait a few minutes if you just made the repository public
 
 ### "AIRTABLE_API_KEY not set"
-Sätt API-nyckeln före kommandot:
+Set the API key before the command:
 ```bash
 AIRTABLE_API_KEY=patXXXXX python3 full_import.py
 ```
 
 ### "Field cannot accept value because it's computed"
-Fältet är en formel i Airtable och kan inte skrivas till. Ta bort det fältet från scriptet.
+The field is a formula in Airtable and cannot be written to. Remove that field from the script.
 
-### Bilder ersätts inte
-- Kontrollera att bildnamnen i `notion_export/images/` matchar referenserna i content.json
-- Scriptet försöker matcha både exakt och fuzzy (delvis matchning)
+### Images not being replaced
+- Verify image names in `notion_export/images/` match references in content.json
+- The script attempts both exact and fuzzy (partial) matching
 
-## Filstruktur
+## File Structure
 
 ```
-├── notion_to_airtable.py    # Konvertera Notion-export till JSON
-├── full_import.py           # Huvudscript - importera bilder + dokument
-├── import_to_airtable.py    # Endast dokument (utan bilder)
-├── upload_images_to_airtable.py  # Endast bilder
+├── notion_to_airtable.py    # Convert Notion export to JSON
+├── full_import.py           # Main script - import images + documents
+├── import_to_airtable.py    # Documents only (without images)
+├── upload_images_to_airtable.py  # Images only
 └── notion_export/
-    ├── content.json         # Dokument i JSON-format
-    ├── content.csv          # Dokument i CSV-format
-    ├── images/              # Bilder med Notion ID-prefix
-    └── broken_images.txt    # Saknade bilder
+    ├── content.json         # Documents in JSON format
+    ├── content.csv          # Documents in CSV format
+    ├── images/              # Images with Notion ID prefix
+    └── broken_images.txt    # Missing images
 ```
 
-## Bildlänk-format
+## Image Link Format
 
-Scriptet ersätter dessa format:
+The script replaces these formats:
 
-| Ursprungligt format | Ersätts med |
-|---------------------|-------------|
-| `![[bild.png]]` | `![bild](asset:recXXX:attXXX)` |
-| `![[bild.png\|alt]]` | `![bild](asset:recXXX:attXXX)` |
-| `![alt](path/bild.png)` | `![alt](asset:recXXX:attXXX)` |
+| Original format | Replaced with |
+|-----------------|---------------|
+| `![[image.png]]` | `![image](asset:recXXX:attXXX)` |
+| `![[image.png\|alt]]` | `![image](asset:recXXX:attXXX)` |
+| `![alt](path/image.png)` | `![alt](asset:recXXX:attXXX)` |
 
-## Säkerhet
+## Security
 
-**Viktigt:** Lägg aldrig API-nycklar i koden. Använd alltid miljövariabler:
+**Important:** Never put API keys in the code. Always use environment variables:
 
 ```bash
-# Sätt temporärt (bara för detta kommando)
-AIRTABLE_API_KEY=din_nyckel python3 full_import.py
+# Set temporarily (only for this command)
+AIRTABLE_API_KEY=your_key python3 full_import.py
 
-# Eller exportera för sessionen
-export AIRTABLE_API_KEY=din_nyckel
+# Or export for the session
+export AIRTABLE_API_KEY=your_key
 python3 full_import.py
 ```
