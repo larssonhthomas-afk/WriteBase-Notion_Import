@@ -156,45 +156,86 @@ def upload_images_to_asset(session: requests.Session) -> dict:
 
 def replace_image_references(content: str, image_mapping: dict) -> str:
     """
-    Replace Obsidian image references with Airtable asset links.
-    ![[filename.png]] or ![[filename.png|alt]] → ![caption](asset:recID:attID)
+    Replace image references with Airtable asset links.
+    Handles both:
+    - Obsidian: ![[filename.png]] or ![[filename.png|alt]]
+    - Markdown: ![alt](path/filename.png)
     """
-    def replace_match(match):
-        full_match = match.group(0)
+
+    def find_asset_match(filename: str) -> tuple:
+        """Try to find matching asset for a filename"""
+        # Clean the filename
+        filename = filename.strip()
+
+        # Try exact match
+        if filename in image_mapping:
+            return image_mapping[filename]
+
+        # Try case-insensitive match
+        filename_lower = filename.lower()
+        for img_name, ids in image_mapping.items():
+            if img_name.lower() == filename_lower:
+                return ids
+
+        # Try matching just the base filename (without path)
+        base_filename = filename.split('/')[-1]
+        if base_filename in image_mapping:
+            return image_mapping[base_filename]
+
+        for img_name, ids in image_mapping.items():
+            if img_name.lower() == base_filename.lower():
+                return ids
+
+        # Try fuzzy match - filename contains or is contained
+        filename_base = filename.rsplit('.', 1)[0].lower()
+        for img_name, ids in image_mapping.items():
+            img_base = img_name.rsplit('.', 1)[0].lower()
+            if filename_base in img_base or img_base in filename_base:
+                return ids
+
+        return None, None
+
+    def replace_obsidian(match):
+        """Replace ![[filename]] syntax"""
         filename = match.group(1)
 
         # Handle |alt syntax: ![[file.png|alt text]]
         if '|' in filename:
             filename = filename.split('|')[0]
 
-        # Try exact match first
-        if filename in image_mapping:
-            rec_id, att_id = image_mapping[filename]
+        rec_id, att_id = find_asset_match(filename)
+        if rec_id and att_id:
             caption = filename.rsplit('.', 1)[0]
             return f"![{caption}](asset:{rec_id}:{att_id})"
 
-        # Try matching without numbers at end (e.g., "Untitled 1 4.png" -> "Untitled 1.png")
-        base_name = re.sub(r'\s+\d+(\.[^.]+)$', r'\1', filename)
-        if base_name in image_mapping:
-            rec_id, att_id = image_mapping[base_name]
-            caption = base_name.rsplit('.', 1)[0]
+        return match.group(0)  # Keep original if no match
+
+    def replace_markdown(match):
+        """Replace ![alt](path/filename.png) syntax"""
+        alt_text = match.group(1)
+        file_path = match.group(2)
+
+        # Extract just the filename from the path
+        filename = file_path.split('/')[-1]
+        # URL decode spaces
+        filename = filename.replace('%20', ' ')
+
+        rec_id, att_id = find_asset_match(filename)
+        if rec_id and att_id:
+            # Use alt text if available, otherwise use filename without extension
+            caption = alt_text if alt_text and not alt_text.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')) else filename.rsplit('.', 1)[0]
             return f"![{caption}](asset:{rec_id}:{att_id})"
 
-        # Try fuzzy match - find closest
-        filename_base = filename.rsplit('.', 1)[0].lower()
-        for img_name, (rec_id, att_id) in image_mapping.items():
-            img_base = img_name.rsplit('.', 1)[0].lower()
-            # Check if one contains the other
-            if filename_base in img_base or img_base in filename_base:
-                caption = img_name.rsplit('.', 1)[0]
-                return f"![{caption}](asset:{rec_id}:{att_id})"
+        return match.group(0)  # Keep original if no match
 
-        # No match found, keep original
-        return full_match
+    # Replace Obsidian syntax: ![[filename]] or ![[filename|alt]]
+    content = re.sub(r'!\[\[([^\]]+)\]\]', replace_obsidian, content)
 
-    # Pattern for Obsidian image syntax: ![[filename]] or ![[filename|alt]]
-    pattern = r'!\[\[([^\]]+)\]\]'
-    return re.sub(pattern, replace_match, content)
+    # Replace Markdown syntax: ![alt](path/to/image.png)
+    # But NOT asset: links (already converted)
+    content = re.sub(r'!\[([^\]]*)\]\((?!asset:)([^)]+\.(?:png|jpg|jpeg|gif|webp))\)', replace_markdown, content, flags=re.IGNORECASE)
+
+    return content
 
 
 def get_or_create_project(session: requests.Session) -> str:
