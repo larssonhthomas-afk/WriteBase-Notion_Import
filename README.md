@@ -32,7 +32,7 @@ This process takes a Notion export and imports it to Airtable:
 | Status | Single select |
 | Notion_ID | Text |
 | Notion_Tag | Text |
-| Publish_Date | Text |
+| Publish_Date | Date |
 | PROJECT | Link to PROJECT |
 
 ### PROJECT table
@@ -47,7 +47,7 @@ This process takes a Notion export and imports it to Airtable:
 1. Open Notion
 2. Go to **Settings & Members** → **Settings**
 3. Scroll down to **Export all workspace content**
-4. Select **Markdown & CSV**
+4. Select **Markdown & CSV** (Include Content "Everything", Inlude Subpages, Create Folders for Subpages)
 5. Download the ZIP file
 
 ### 2. Prepare the Export
