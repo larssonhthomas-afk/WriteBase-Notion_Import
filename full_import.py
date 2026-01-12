@@ -44,13 +44,10 @@ GITHUB_REPO = "WriteBase-Notion_Import"
 GITHUB_BRANCH = "main"
 GITHUB_IMAGE_PATH = "notion_export/images"
 
-# Project name for imported documents
-PROJECT_NAME = "Notion_Import"
-
-# Field mapping: Notion -> Airtable
+# Field mapping: JSON key -> Airtable field name
 FIELD_MAPPING = {
     "title": "Title",
-    "body": "Content",
+    "content": "Content",  # FIXED: was "body"
     "status": "Status",
     "notion_id": "Notion_ID",
     "tags": "Notion_Tag",
@@ -61,6 +58,7 @@ FIELD_MAPPING = {
 STATUS_MAPPING = {
     "Published": "Published",
     "Inbox": "Inbox",
+    "Imported": "Inbox",  # ADDED: Map "Imported" status
     "#reference": "Inbox",
     "#idea": "Inbox",
     "": None,
@@ -69,6 +67,9 @@ STATUS_MAPPING = {
 # Rate limiting
 DELAY = 0.25
 BATCH_SIZE = 10
+
+# Cache for project lookups
+PROJECT_CACHE = {}
 
 
 def get_github_raw_url(filename: str) -> str:
@@ -238,22 +239,26 @@ def replace_image_references(content: str, image_mapping: dict) -> str:
     return content
 
 
-def get_or_create_project(session: requests.Session) -> str:
-    """Get or create the project record"""
+def get_project_id(session: requests.Session, project_name: str) -> str:
+    """Get project ID by name, with caching"""
+    # Check cache first
+    if project_name in PROJECT_CACHE:
+        return PROJECT_CACHE[project_name]
+    
+    # Query Airtable for the project
     url = f"https://api.airtable.com/v0/{BASE_ID}/{PROJECT_TABLE}"
-    params = {"filterByFormula": f"{{Title}}='{PROJECT_NAME}'"}
+    params = {"filterByFormula": f"{{Title}}='{project_name}'"}
 
     response = session.get(url, params=params)
     if response.status_code == 200:
         data = response.json()
         if data.get("records"):
-            return data["records"][0]["id"]
-
-    # Create project
-    response = session.post(url, json={"fields": {"Title": PROJECT_NAME}})
-    if response.status_code == 200:
-        return response.json()["id"]
-
+            project_id = data["records"][0]["id"]
+            PROJECT_CACHE[project_name] = project_id
+            return project_id
+    
+    # Project not found
+    print(f"    WARNING: Project '{project_name}' not found in Airtable")
     return None
 
 
@@ -274,43 +279,43 @@ def import_documents(session: requests.Session, image_mapping: dict):
     print(f"  Found {len(records)} documents")
     print()
 
-    # Get/create project
-    project_id = get_or_create_project(session)
-    if project_id:
-        print(f"  Project: {PROJECT_NAME} ({project_id})")
-    print()
-
     # Prepare records
     airtable_records = []
+    skipped = 0
+    
     for record in records:
         fields = {}
 
-        for notion_key, airtable_key in FIELD_MAPPING.items():
-            value = record.get(notion_key, "")
+        for json_key, airtable_key in FIELD_MAPPING.items():
+            value = record.get(json_key, "")
             if value:
                 value = str(value).strip().strip('"').strip("'")
 
                 # Status mapping
-                if notion_key == "status":
+                if json_key == "status":
                     mapped = STATUS_MAPPING.get(value)
                     if mapped is None:
                         continue
                     value = mapped
 
                 # Replace image references in content
-                if notion_key == "body":
+                if json_key == "content":
                     value = replace_image_references(value, image_mapping)
 
                 fields[airtable_key] = value
 
-        if project_id:
-            fields["PROJECT"] = [project_id]
+        # Set project name as text field
+        project_name = record.get("project", "")
+        if project_name:
+            fields["Import_Project"] = project_name
 
-        if fields:
+        if fields and fields.get("Title"):  # Must have at least a title
             airtable_records.append({"fields": fields})
+        else:
+            skipped += 1
 
     # Upload in batches
-    print(f"  Uploading {len(airtable_records)} documents...")
+    print(f"  Uploading {len(airtable_records)} documents (skipped {skipped})...")
     print()
 
     success = 0

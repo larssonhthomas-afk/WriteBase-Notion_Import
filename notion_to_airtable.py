@@ -1,360 +1,236 @@
 #!/usr/bin/env python3
 """
-Notion to Airtable Converter
-Konverterar Notion-export (markdown + CSV) till Airtable-redo format.
+Notion Export to Airtable Import Script (v2)
 
-Användning:
-    python notion_to_airtable.py /path/to/notion/export /path/to/output
+Converts Notion markdown exports to JSON format for Airtable import.
+Maps subfolders to PROJECT names.
 
-Output:
-    - output/content.json       - Alla poster i JSON-format för Airtable import
-    - output/content.csv        - CSV-version
-    - output/images/            - Alla bilder samlade med unika namn
-    - output/broken_images.txt  - Lista på bilder som saknas (Obsidian-syntax etc)
+Usage:
+    python3 notion_to_airtable.py /path/to/notion/export ./output_folder
 """
 
 import os
 import sys
-import re
 import json
-import csv
+import re
 import shutil
 from pathlib import Path
 from datetime import datetime
-from typing import Optional
-from dataclasses import dataclass, field, asdict
 
+def extract_title_from_filename(filename):
+    """
+    Remove Notion ID from filename to get clean title.
+    Example: "My Document 281fc2711b808049b837d239a4b31baf.md" -> "My Document"
+    """
+    # Remove .md extension
+    name = filename.replace('.md', '')
+    
+    # Remove Notion ID (32 char hex at the end)
+    # Pattern: space + 32 hex characters at end
+    pattern = r'\s+[a-f0-9]{32}$'
+    clean_name = re.sub(pattern, '', name)
+    
+    return clean_name.strip()
 
-@dataclass
-class ContentItem:
-    """En post från Notion-exporten"""
-    notion_id: str
-    title: str
-    status: str = ""
-    content_type: str = ""
-    ai_keywords: str = ""
-    ai_summary: str = ""
-    author: str = ""
-    link: str = ""
-    publish_date: str = ""
-    created_time: str = ""
-    year: str = ""
-    tags: str = ""
-    body: str = ""
-    images: list = field(default_factory=list)
-    broken_images: list = field(default_factory=list)
-    child_pages: list = field(default_factory=list)
-    source_file: str = ""
-
-
-def extract_notion_id(filename: str) -> Optional[str]:
-    """Extrahera Notion ID från filnamn (sista 32 tecken före .md)"""
-    match = re.search(r'([a-f0-9]{32})\.md$', filename)
+def extract_notion_id(filename):
+    """Extract the 32-char Notion ID from filename."""
+    pattern = r'([a-f0-9]{32})'
+    match = re.search(pattern, filename)
     return match.group(1) if match else None
 
-
-def parse_metadata(content: str) -> dict:
-    """Extrahera metadata från markdown-filens header"""
-    metadata = {}
-    lines = content.split('\n')
-    
-    # Hoppa över titeln (första raden med #)
-    start_idx = 0
-    for i, line in enumerate(lines):
-        if line.startswith('# '):
-            start_idx = i + 1
-            break
-    
-    # Parsa key: value par
-    for line in lines[start_idx:]:
-        line = line.strip()
-        if not line:
-            continue
-        if line.startswith('#') or line.startswith('!') or line.startswith('['):
-            break
-        
-        match = re.match(r'^([A-Za-z\s]+):\s*(.+)$', line)
-        if match:
-            key = match.group(1).strip().lower().replace(' ', '_')
-            value = match.group(2).strip()
-            metadata[key] = value
-    
-    return metadata
-
-
-def extract_body(content: str) -> str:
-    """Extrahera brödtexten efter metadata"""
-    lines = content.split('\n')
-    body_lines = []
-    in_metadata = True
-    found_title = False
-    
-    for line in lines:
-        # Hoppa över titeln
-        if line.startswith('# ') and not found_title:
-            found_title = True
-            continue
-        
-        # Metadata-sektion
-        if in_metadata:
-            stripped = line.strip()
-            # Tom rad eller börjar med något som inte är metadata
-            if stripped and not re.match(r'^[A-Za-z\s]+:\s*.+$', stripped):
-                in_metadata = False
-            elif not stripped:
-                continue
-            else:
-                continue
-        
-        body_lines.append(line)
-    
-    return '\n'.join(body_lines).strip()
-
-
-def find_images(content: str, base_path: Path) -> tuple[list, list]:
+def get_project_from_path(file_path, base_path):
     """
-    Hitta alla bilder i markdown-innehållet.
-    Returnerar (fungerande_bilder, brutna_bilder)
-    """
-    working_images = []
-    broken_images = []
+    Determine project name from folder structure.
     
-    # Markdown-syntax: ![alt](path)
-    md_pattern = r'!\[([^\]]*)\]\(([^)]+)\)'
-    for match in re.finditer(md_pattern, content):
-        img_path = match.group(2)
-        # URL-decode
-        img_path = img_path.replace('%20', ' ')
-        full_path = base_path / img_path
-        
-        if full_path.exists():
-            working_images.append(str(full_path))
+    Structure:
+    - Private & Shared/Matter/... -> "Matter"
+    - Private & Shared/Politik/... -> "Politik"
+    - Private & Shared/Projekt (egna)/Forefront/... -> "Forefront"
+    - Private & Shared/Projekt (egna)/Social Selling/... -> "Social Selling"
+    - Root level .md files -> "Inbox"
+    """
+    rel_path = os.path.relpath(file_path, base_path)
+    parts = Path(rel_path).parts
+    
+    # Skip "Private & Shared" if present
+    if parts and parts[0] == "Private & Shared":
+        parts = parts[1:]
+    
+    if not parts:
+        return "Inbox"
+    
+    # If only one part (the file itself), it's a root-level file
+    if len(parts) == 1:
+        return "Inbox"
+    
+    # If first folder is "Projekt (egna)", use the subfolder as project
+    if parts[0] == "Projekt (egna)":
+        if len(parts) > 2:  # Has subfolder
+            return clean_project_name(parts[1])
         else:
-            broken_images.append(img_path)
+            return "Projekt"
     
-    # Obsidian-syntax: ![[image.png]]
-    obsidian_pattern = r'!\[\[([^\]]+)\]\]'
-    for match in re.finditer(obsidian_pattern, content):
-        img_name = match.group(1)
-        broken_images.append(f"obsidian:{img_name}")
-    
-    return working_images, broken_images
+    # Otherwise use the first folder as project (clean it)
+    return clean_project_name(parts[0])
 
+def clean_project_name(name):
+    """Remove Notion ID from folder/project name."""
+    # Remove Notion ID (32 char hex at the end)
+    pattern = r'\s+[a-f0-9]{32}$'
+    clean = re.sub(pattern, '', name)
+    return clean.strip()
 
-def find_child_links(content: str) -> list:
-    """Hitta länkar till child pages"""
-    children = []
-    # Notion child page links: [Title](folder/file.md)
-    pattern = r'\[([^\]]+)\]\(([^)]+\.md)\)'
-    for match in re.finditer(pattern, content):
-        children.append({
-            'title': match.group(1),
-            'path': match.group(2)
-        })
-    return children
+def find_images_in_content(content):
+    """Find all image references in markdown content."""
+    images = []
+    
+    # Pattern 1: ![alt](path)
+    pattern1 = r'!\[([^\]]*)\]\(([^)]+)\)'
+    for match in re.finditer(pattern1, content):
+        alt, path = match.groups()
+        if not path.startswith('http'):
+            images.append({'alt': alt, 'path': path, 'full_match': match.group(0)})
+    
+    # Pattern 2: ![[filename]] or ![[filename|alt]]
+    pattern2 = r'!\[\[([^\]|]+)(?:\|([^\]]*))?\]\]'
+    for match in re.finditer(pattern2, content):
+        filename, alt = match.groups()
+        images.append({'alt': alt or filename, 'path': filename, 'full_match': match.group(0)})
+    
+    return images
 
-
-def process_markdown_file(md_path: Path) -> ContentItem:
-    """Processa en markdown-fil och returnera ContentItem"""
-    with open(md_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+def process_notion_export(input_dir, output_dir):
+    """Process all markdown files from Notion export."""
     
-    notion_id = extract_notion_id(md_path.name) or md_path.stem
+    input_path = Path(input_dir)
+    output_path = Path(output_dir)
     
-    # Titel från första # raden
-    title_match = re.search(r'^# (.+)$', content, re.MULTILINE)
-    title = title_match.group(1) if title_match else md_path.stem
-    
-    # Metadata
-    meta = parse_metadata(content)
-    
-    # Body
-    body = extract_body(content)
-    
-    # Bilder
-    working_imgs, broken_imgs = find_images(content, md_path.parent)
-    
-    # Child pages
-    children = find_child_links(content)
-    
-    return ContentItem(
-        notion_id=notion_id,
-        title=title,
-        status=meta.get('status', ''),
-        content_type=meta.get('content_type', ''),
-        ai_keywords=meta.get('ai_keywords', ''),
-        ai_summary=meta.get('ai_summary', ''),
-        author=meta.get('author', ''),
-        link=meta.get('link', ''),
-        publish_date=meta.get('publish_date', ''),
-        created_time=meta.get('created_time', ''),
-        year=meta.get('year', ''),
-        tags=meta.get('tags', ''),
-        body=body,
-        images=working_imgs,
-        broken_images=broken_imgs,
-        child_pages=children,
-        source_file=str(md_path)
-    )
-
-
-def process_directory(input_dir: Path) -> list[ContentItem]:
-    """Processa alla markdown-filer i en katalog"""
-    items = []
-    
-    # Hitta alla .md filer
-    for md_file in input_dir.rglob('*.md'):
-        # Skippa filer i __MACOSX
-        if '__MACOSX' in str(md_file):
-            continue
-        
-        try:
-            item = process_markdown_file(md_file)
-            items.append(item)
-        except Exception as e:
-            print(f"⚠️  Kunde inte processa {md_file}: {e}")
-    
-    return items
-
-
-def copy_images(items: list[ContentItem], output_dir: Path) -> dict:
-    """Kopiera alla bilder till output/images/ med unika namn"""
-    images_dir = output_dir / 'images'
+    # Create output directories
+    output_path.mkdir(parents=True, exist_ok=True)
+    images_dir = output_path / 'images'
     images_dir.mkdir(exist_ok=True)
     
-    image_mapping = {}  # original_path -> new_filename
+    documents = []
+    all_images = []
+    broken_images = []
+    projects_found = set()
     
-    for item in items:
-        for img_path in item.images:
-            src = Path(img_path)
-            if src.exists():
-                # Skapa unikt namn: notion_id_originalnamn
-                new_name = f"{item.notion_id[:8]}_{src.name}"
-                dst = images_dir / new_name
-                
-                # Hantera duplicerade namn
-                counter = 1
-                while dst.exists():
-                    new_name = f"{item.notion_id[:8]}_{counter}_{src.name}"
-                    dst = images_dir / new_name
-                    counter += 1
-                
-                shutil.copy2(src, dst)
-                image_mapping[str(src)] = new_name
+    # Find all markdown files
+    md_files = list(input_path.rglob('*.md'))
+    print(f"Found {len(md_files)} markdown files")
     
-    return image_mapping
-
-
-def export_json(items: list[ContentItem], output_path: Path):
-    """Exportera till JSON"""
-    data = []
-    for item in items:
-        d = asdict(item)
-        # Konvertera listor till kommaseparerade strängar för Airtable
-        d['images'] = ', '.join([Path(p).name for p in item.images])
-        d['broken_images'] = ', '.join(item.broken_images)
-        d['child_pages'] = ', '.join([c['title'] for c in item.child_pages])
-        data.append(d)
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-
-def export_csv(items: list[ContentItem], output_path: Path):
-    """Exportera till CSV"""
-    if not items:
-        return
-    
-    fieldnames = [
-        'notion_id', 'title', 'status', 'content_type', 'ai_keywords',
-        'ai_summary', 'author', 'link', 'publish_date', 'created_time',
-        'year', 'tags', 'body', 'images', 'broken_images', 'child_pages',
-        'source_file'
-    ]
-    
-    with open(output_path, 'w', encoding='utf-8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
+    for md_file in md_files:
+        # Skip if in __MACOSX folder
+        if '__MACOSX' in str(md_file):
+            continue
+            
+        # Read content
+        try:
+            with open(md_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except Exception as e:
+            print(f"Error reading {md_file}: {e}")
+            continue
         
-        for item in items:
-            row = asdict(item)
-            row['images'] = ', '.join([Path(p).name for p in item.images])
-            row['broken_images'] = ', '.join(item.broken_images)
-            row['child_pages'] = ', '.join([c['title'] for c in item.child_pages])
-            writer.writerow(row)
-
-
-def export_broken_images(items: list[ContentItem], output_path: Path):
-    """Skriv lista på brutna bilder"""
-    broken = []
-    for item in items:
-        for img in item.broken_images:
-            broken.append(f"{item.title}: {img}")
+        # Extract metadata
+        filename = md_file.name
+        title = extract_title_from_filename(filename)
+        notion_id = extract_notion_id(filename)
+        project = get_project_from_path(md_file, input_path)
+        projects_found.add(project)
+        
+        # Find images in content
+        images = find_images_in_content(content)
+        
+        # Process images
+        for img in images:
+            img_path = md_file.parent / img['path']
+            if img_path.exists():
+                # Copy image to output with notion_id prefix
+                new_filename = f"{notion_id}_{Path(img['path']).name}" if notion_id else Path(img['path']).name
+                new_path = images_dir / new_filename
+                try:
+                    shutil.copy2(img_path, new_path)
+                    all_images.append({
+                        'original': img['path'],
+                        'new_name': new_filename,
+                        'alt': img['alt'],
+                        'document_notion_id': notion_id
+                    })
+                    # Update content with new image reference
+                    content = content.replace(img['full_match'], f"![{img['alt']}]({new_filename})")
+                except Exception as e:
+                    print(f"Error copying image {img_path}: {e}")
+                    broken_images.append(str(img_path))
+            else:
+                broken_images.append(str(img_path))
+        
+        # Create document record
+        doc = {
+            'title': title,
+            'content': content,
+            'notion_id': notion_id,
+            'project': project,
+            'source_file': str(md_file.relative_to(input_path)),
+            'status': 'Imported'
+        }
+        documents.append(doc)
     
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(broken))
-
+    # Write outputs
+    # JSON (main output)
+    with open(output_path / 'content.json', 'w', encoding='utf-8') as f:
+        json.dump(documents, f, ensure_ascii=False, indent=2)
+    
+    # CSV (backup)
+    import csv
+    with open(output_path / 'content.csv', 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['title', 'content', 'notion_id', 'project', 'source_file', 'status'])
+        writer.writeheader()
+        writer.writerows(documents)
+    
+    # Projects list
+    with open(output_path / 'projects.json', 'w', encoding='utf-8') as f:
+        json.dump(sorted(list(projects_found)), f, ensure_ascii=False, indent=2)
+    
+    # Broken images log
+    if broken_images:
+        with open(output_path / 'broken_images.txt', 'w', encoding='utf-8') as f:
+            f.write('\n'.join(broken_images))
+    
+    # Summary
+    print(f"\n{'='*50}")
+    print(f"SUMMARY")
+    print(f"{'='*50}")
+    print(f"Documents processed: {len(documents)}")
+    print(f"Projects found: {len(projects_found)}")
+    for p in sorted(projects_found):
+        count = len([d for d in documents if d['project'] == p])
+        print(f"  - {p}: {count} docs")
+    print(f"Images copied: {len(all_images)}")
+    print(f"Broken image references: {len(broken_images)}")
+    print(f"\nOutput written to: {output_path}")
+    print(f"  - content.json")
+    print(f"  - content.csv")
+    print(f"  - projects.json")
+    print(f"  - images/")
+    if broken_images:
+        print(f"  - broken_images.txt")
 
 def main():
-    if len(sys.argv) < 2:
-        print("Användning: python notion_to_airtable.py <notion_export_dir> [output_dir]")
-        print("\nExempel:")
-        print("  python notion_to_airtable.py ./Content ./output")
+    if len(sys.argv) < 3:
+        print("Usage: python3 notion_to_airtable.py <input_dir> <output_dir>")
+        print("\nExample:")
+        print("  python3 notion_to_airtable.py ~/Downloads/notion_export ./notion_output")
         sys.exit(1)
     
-    input_dir = Path(sys.argv[1])
-    output_dir = Path(sys.argv[2]) if len(sys.argv) > 2 else Path('./notion_output')
+    input_dir = sys.argv[1]
+    output_dir = sys.argv[2]
     
-    if not input_dir.exists():
-        print(f"❌ Mappen finns inte: {input_dir}")
+    if not os.path.exists(input_dir):
+        print(f"Error: Input directory does not exist: {input_dir}")
         sys.exit(1)
     
-    # Skapa output-katalog
-    output_dir.mkdir(exist_ok=True)
-    
-    print(f"📂 Läser från: {input_dir}")
-    print(f"📁 Skriver till: {output_dir}")
-    print()
-    
-    # Processa alla filer
-    items = process_directory(input_dir)
-    print(f"✅ Hittade {len(items)} poster")
-    
-    # Räkna statistik
-    with_images = sum(1 for i in items if i.images)
-    with_broken = sum(1 for i in items if i.broken_images)
-    total_broken = sum(len(i.broken_images) for i in items)
-    
-    print(f"   - {with_images} med fungerande bilder")
-    print(f"   - {with_broken} med brutna bildreferenser ({total_broken} totalt)")
-    print()
-    
-    # Kopiera bilder
-    print("📷 Kopierar bilder...")
-    image_mapping = copy_images(items, output_dir)
-    print(f"   - {len(image_mapping)} bilder kopierade")
-    print()
-    
-    # Exportera
-    print("💾 Exporterar...")
-    export_json(items, output_dir / 'content.json')
-    print(f"   - {output_dir / 'content.json'}")
-    
-    export_csv(items, output_dir / 'content.csv')
-    print(f"   - {output_dir / 'content.csv'}")
-    
-    if total_broken > 0:
-        export_broken_images(items, output_dir / 'broken_images.txt')
-        print(f"   - {output_dir / 'broken_images.txt'}")
-    
-    print()
-    print("✨ Klart!")
-    print()
-    print("Nästa steg:")
-    print("1. Importera content.csv till Airtable")
-    print("2. Ladda upp bilder från images/ manuellt eller via script")
-    print("3. Kör bild-download-scriptet för att hämta Notion-länkade bilder (kommer senare)")
-
+    process_notion_export(input_dir, output_dir)
 
 if __name__ == '__main__':
     main()
