@@ -1,0 +1,5 @@
+# Installeras på Raspberry Pi:n, inte på servern.
+# Waveshares drivrutin installeras separat, se pi/install.sh
+requests>=2.31
+pillow>=10.0
+numpy>=1.26
