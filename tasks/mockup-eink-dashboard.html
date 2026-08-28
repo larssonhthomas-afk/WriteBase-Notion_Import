@@ -1,0 +1,470 @@
+<title>Hallskärmen</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500&family=Space+Mono:wght@400;700&display=swap">
+<style>
+  :root {
+    --ground: #E4E6E3;
+    --surface: #F2F3F1;
+    --sunk: #D7DAD6;
+    --ink: #171A18;
+    --muted: #6C716C;
+    --rule: #C6CAC5;
+    --accent: #2F5D50;
+    --accent-soft: #D5E0DA;
+
+    --display: "IBM Plex Sans Condensed", "Helvetica Neue", Arial, sans-serif;
+    --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #151815;
+      --surface: #1D211D;
+      --sunk: #101310;
+      --ink: #E7EAE6;
+      --muted: #99A098;
+      --rule: #2E332D;
+      --accent: #86B8A4;
+      --accent-soft: #24352E;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #151815;
+    --surface: #1D211D;
+    --sunk: #101310;
+    --ink: #E7EAE6;
+    --muted: #99A098;
+    --rule: #2E332D;
+    --accent: #86B8A4;
+    --accent-soft: #24352E;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 3rem 1.5rem 6rem;
+  }
+
+  .wrap {
+    max-width: 68rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+  }
+
+  .col {
+    max-width: 44rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(2.4rem, 6vw, 3.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  h3 {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  p { margin: 0; max-width: 62ch; }
+  .lede { font-size: 1.1rem; color: var(--muted); max-width: 56ch; }
+  strong { font-weight: 500; color: var(--ink); }
+
+  /* ---------- the panel ---------- */
+
+  .frame {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: clamp(0.75rem, 2.5vw, 2rem);
+    container-type: inline-size;
+  }
+
+  .panel {
+    background: #FFFFFF;
+    color: #000000;
+    aspect-ratio: 800 / 480;
+    width: 100%;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-size: 1.25cqw;
+    line-height: 1.25;
+    display: grid;
+    grid-template-rows: 4.4em 1fr 7.2em 4em;
+    overflow: hidden;
+  }
+
+  .panel .rule-b { border-bottom: 0.2em solid #000; }
+
+  .p-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.6em;
+    font-size: 1.5em;
+    letter-spacing: 0.06em;
+  }
+  .p-head .date { font-weight: 700; }
+  .p-head .name { font-size: 0.82em; }
+
+  .p-main {
+    display: grid;
+    grid-template-columns: 29.6em 1fr;
+  }
+
+  .p-left {
+    border-right: 0.2em solid #000;
+    padding: 1.4em 1.6em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9em;
+  }
+
+  .clock {
+    font-size: 8.6em;
+    font-weight: 700;
+    line-height: 0.86;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .wx { display: flex; align-items: center; gap: 0.9em; }
+  .wx svg { width: 4.6em; height: 4.6em; flex: none; }
+  .wx .temp { font-size: 3.4em; font-weight: 700; line-height: 1; }
+  .wx-txt { font-size: 1.4em; }
+  .wx-range { font-size: 1.3em; }
+
+  .p-right {
+    padding: 1.4em 1.6em;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1em;
+  }
+
+  .sec-label {
+    font-size: 1.2em;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    border-bottom: 0.1em solid #000;
+    padding-bottom: 0.35em;
+  }
+
+  .agenda { display: flex; flex-direction: column; gap: 0.5em; }
+  .row { display: flex; gap: 1.1em; align-items: baseline; font-size: 1.5em; }
+  .row .t { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .row .icon { width: 1.15em; height: 1.15em; flex: none; align-self: center; }
+
+  .meal { font-size: 1.9em; font-weight: 700; }
+  .meal-alt { font-size: 1.35em; }
+
+  .p-dep {
+    display: flex;
+    align-items: center;
+    gap: 2.2em;
+    padding: 0 1.6em;
+  }
+  .p-dep .lbl { font-size: 1.2em; font-weight: 700; letter-spacing: 0.2em; }
+  .p-dep .times { display: flex; gap: 1.5em; font-size: 3.2em; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .p-dep .times span:not(:first-child) { font-weight: 400; }
+
+  .p-foot {
+    display: flex;
+    align-items: center;
+    padding: 0 1.6em;
+    font-size: 1.3em;
+  }
+
+  .caption {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-top: 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.4rem;
+  }
+
+  /* ---------- tables ---------- */
+
+  .scroll { overflow-x: auto; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.92rem;
+    min-width: 34rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.7rem 1rem 0.7rem 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  td.freq { font-family: var(--mono); font-size: 0.82rem; white-space: nowrap; color: var(--accent); }
+  td.src { color: var(--muted); }
+
+  /* ---------- pipeline ---------- */
+
+  .lanes { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+  @media (min-width: 52rem) { .lanes { grid-template-columns: 1fr 1fr; } }
+
+  .lane {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .lane-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .lane-head .where { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+
+  ol.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.65rem; counter-reset: s; }
+  ol.steps li {
+    counter-increment: s;
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    gap: 0.75rem;
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+  ol.steps li::before {
+    content: counter(s);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    border: 1px solid var(--rule);
+    height: 1.5rem;
+    display: grid;
+    place-items: center;
+  }
+  ol.steps code { font-family: var(--mono); font-size: 0.82em; background: var(--sunk); padding: 0.1em 0.35em; }
+
+  .note {
+    border-left: 2px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .note h3 { color: var(--accent); }
+
+  ul.plain { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  ul.plain li { font-size: 0.95rem; }
+
+  .open { display: flex; flex-direction: column; gap: 0.85rem; }
+  .open .q {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.85rem;
+    align-items: start;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .open .q:last-child { border-bottom: 0; padding-bottom: 0; }
+  .box { width: 0.85rem; height: 0.85rem; border: 1.5px solid var(--accent); margin-top: 0.35rem; }
+
+  hr { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+</style>
+
+<div class="wrap">
+
+  <header class="col">
+    <p class="eyebrow">Mockup för godkännande · steg 2 av 8</p>
+    <h1>Hallskärmen</h1>
+    <p class="lede">Så här är tanken att den ska se ut. Titta på layouten — inte på innehållet, det är påhittat. Säger du ja bygger jag den på riktigt.</p>
+  </header>
+
+  <section>
+    <div class="frame">
+      <div class="panel">
+
+        <div class="p-head rule-b">
+          <span class="date">TORSDAG 28 AUGUSTI</span>
+          <span class="name">Namnsdag · Gunnar, Gunder</span>
+        </div>
+
+        <div class="p-main rule-b">
+          <div class="p-left">
+            <div class="clock">07:42</div>
+            <div class="wx">
+              <svg viewBox="0 0 48 48" fill="none" stroke="#000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="17" cy="16" r="6.5"></circle>
+                <path d="M17 4.5v3M17 24.5v3M5.5 16h3M25.5 16h3M8.9 7.9l2.1 2.1M23 22l2.1 2.1M25.1 7.9L23 10M11 22l-2.1 2.1"></path>
+                <path d="M15 40h19a6.5 6.5 0 0 0 .6-13 9 9 0 0 0-16.8-2.4A6 6 0 0 0 15 40Z" fill="#fff"></path>
+              </svg>
+              <div>
+                <div class="temp">14°</div>
+                <div class="wx-txt">Halvklart</div>
+              </div>
+            </div>
+            <div class="wx-range">11° / 19° &nbsp;·&nbsp; Regn 15:00</div>
+          </div>
+
+          <div class="p-right">
+            <div>
+              <div class="sec-label">IDAG</div>
+              <div class="agenda" style="margin-top:0.7em">
+                <div class="row">
+                  <span class="t">07:55</span>
+                  <span>Ella — skolstart</span>
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="15.5" cy="3.7" r="2.2"></circle>
+                    <path d="M13 21l1.8-5.4-3.3-2.8.9-4.9-3.9 2.5-1.8 3.4"></path>
+                    <path d="M12.4 7.9l3.9-1.1 3 3.1 3.2.6"></path>
+                    <path d="M14.8 15.6L10 16.8 6.4 21"></path>
+                  </svg>
+                </div>
+                <div class="row"><span class="t">08:10</span><span>Otto — skolstart</span></div>
+                <div class="row"><span class="t">14:00</span><span>Tandläkare, Otto</span></div>
+                <div class="row"><span class="t">18:30</span><span>Träning Ella, Enskede IP</span></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="sec-label">SKOLMATEN</div>
+              <div style="margin-top:0.7em">
+                <div class="meal">Pasta arrabiata</div>
+                <div class="meal-alt">Vegetariskt · Falafel med couscous</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-dep rule-b">
+          <span class="lbl">MOT STAN</span>
+          <span class="times"><span>07:51</span><span>07:57</span><span>08:03</span></span>
+        </div>
+
+        <div class="p-foot">
+          1963 — Martin Luther King håller talet ”I have a dream” i Washington
+        </div>
+
+      </div>
+    </div>
+    <p class="caption">
+      <span>800 × 480 px</span>
+      <span>1-bitars svart/vitt — ingen gråskala</span>
+      <span>Space Mono</span>
+      <span>Skalenlig, motsvarar 16,3 × 9,8 cm i verkligheten</span>
+    </p>
+  </section>
+
+  <section class="col">
+    <h2>Varje yta har en källa</h2>
+    <p>Ytorna uppdateras olika ofta, eftersom källorna ändrar sig olika ofta. Det är därför skärmen kan visa rätt tid varje minut utan att tjata på SMHI eller skolmaten.se.</p>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Yta</th><th>Källa</th><th>Hämtas</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Klockan</td><td class="src">Serverns egen tid</td><td class="freq">varje minut</td></tr>
+          <tr><td>Mot stan</td><td class="src">SL Transport</td><td class="freq">varje minut</td></tr>
+          <tr><td>Idag</td><td class="src">Din familjekalender</td><td class="freq">var 15:e min</td></tr>
+          <tr><td>Vädret</td><td class="src">SMHI öppna data</td><td class="freq">var 30:e min</td></tr>
+          <tr><td>Skolmaten</td><td class="src">skolmaten.se</td><td class="freq">var 6:e timme</td></tr>
+          <tr><td>Skolstart, idrott</td><td class="src">Handmatat schema</td><td class="freq">vid ändring</td></tr>
+          <tr><td>Namnsdag, historia</td><td class="src">Wikipedia</td><td class="freq">en gång per dygn</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="col" style="max-width:none">
+    <h2>Hur bilden hamnar på väggen</h2>
+    <p style="margin-bottom:0.5rem">Servern gör allt tänkande. Pi:n gör ingenting utom att klistra upp resultatet — den vet inte ens vad en kalender är.</p>
+    <div class="lanes">
+      <div class="lane">
+        <div class="lane-head"><h2 style="font-size:1.2rem">Servern</h2><span class="where">din VPS</span></div>
+        <ol class="steps">
+          <li>Hämtar från varje källa och sparar undan svaret så länge det är färskt</li>
+          <li>Fyller i en HTML-mall med dagens siffror</li>
+          <li>Fotograferar mallen med en osynlig webbläsare, exakt 800 × 480</li>
+          <li>Gör om bilden till ren svartvitt och sparar den som <code>dashboard.png</code></li>
+          <li>Lämnar ut bilden till den som visar rätt lösenord</li>
+        </ol>
+      </div>
+      <div class="lane">
+        <div class="lane-head"><h2 style="font-size:1.2rem">Skärmen</h2><span class="where">Pi:n i hallen</span></div>
+        <ol class="steps">
+          <li>Frågar efter bilden varje minut</li>
+          <li>Får svaret ”inget nytt” — sover vidare, skärmen rörs inte</li>
+          <li>Får en ny bild — jämför med den förra och ritar bara om det som ändrats</li>
+          <li>Ritar om allt varje hel timme, så inga spökrester blir kvar</li>
+          <li>Söver panelen mellan varje uppdatering</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="col">
+    <h2>Tre saker jag bygger in utan att fråga</h2>
+    <ul class="plain">
+      <li><strong>Kalendern skyddas.</strong> Servern står på internet, och bilden innehåller din familjs dag i klartext. Pi:n måste visa ett lösenord för att få hämta den. Alla andra får nej.</li>
+      <li><strong>Skärmen ska överleva.</strong> Panelen sövs efter varje uppdatering. Lämnas den under spänning kan den ta skada — det är den enda vägen att göra sönder hårdvaran med mjukvara.</li>
+      <li><strong>Tyst fel ska synas.</strong> Om servern tystnar behåller skärmen sin bild. Efter en kvart markeras det diskret, så du ser skillnad på ”inget nytt har hänt” och ”något är trasigt”.</li>
+    </ul>
+  </section>
+
+  <section class="col">
+    <h2>Innan jag börjar</h2>
+    <div class="open">
+      <div class="q"><span class="box"></span><p><strong>Stämmer layouten?</strong> Rätt saker, rätt storlek? Klockan är störst, skolmaten näst största texten. Något som saknas, eller något du aldrig kommer titta på?</p></div>
+      <div class="q"><span class="box"></span><p><strong>Vilken hållplats, och vilken riktning?</strong> ”Mot stan” behöver en faktisk hållplats för att bli riktig data.</p></div>
+      <div class="q"><span class="box"></span><p><strong>Vilken skola, och vilka barn?</strong> Skolmaten hämtas per skola. Schematiderna matas in för hand en gång.</p></div>
+      <div class="q"><span class="box"></span><p><strong>Hur når jag dina kalendrar?</strong> Du sa att de redan ligger på servern. Är de utläsbara som Python-objekt, eller ligger de bakom ett eget API?</p></div>
+    </div>
+    <hr style="margin:1rem 0">
+    <p class="lede" style="font-size:1rem">Säger du ja på layouten skriver jag kravspecen färdig, och sedan byggs allt utan att jag stannar och frågar.</p>
+  </section>
+
+</div>
