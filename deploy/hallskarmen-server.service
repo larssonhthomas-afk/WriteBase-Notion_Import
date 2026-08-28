@@ -1,0 +1,37 @@
+# systemd-tjänst för renderingsservern. Kopiera till
+# /etc/systemd/system/hallskarmen-server.service och justera User/WorkingDirectory.
+#
+# DASHBOARD_TOKEN sätts INTE här i klartext -- lägg den i en EnvironmentFile
+# med 600-rättigheter, ägd av samma användare som kör tjänsten:
+#
+#   install -m 600 -o hallskarmen /dev/null /etc/hallskarmen/server.env
+#   echo "DASHBOARD_TOKEN=$(openssl rand -hex 32)" > /etc/hallskarmen/server.env
+#
+# Servern lyssnar bara på localhost. En reverse proxy (Caddy eller nginx)
+# terminerar HTTPS framför den -- tokenet skickas i klartext annars, och
+# bilden innehåller familjekalendern.
+
+[Unit]
+Description=Hallskarmen -- e-ink dashboard renderer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hallskarmen
+Group=hallskarmen
+WorkingDirectory=/opt/hallskarmen
+EnvironmentFile=/etc/hallskarmen/server.env
+ExecStart=/opt/hallskarmen/.venv/bin/uvicorn server.app:create_app --factory --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+
+# Chromium behöver skriva tillfälliga profildata. Resten av filsystemet
+# hålls skrivskyddat -- renderaren har inget skäl att röra något annat.
+ProtectSystem=strict
+ReadWritePaths=/tmp
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

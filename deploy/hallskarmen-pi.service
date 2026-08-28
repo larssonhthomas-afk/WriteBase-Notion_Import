@@ -1,0 +1,23 @@
+# systemd-tjänst för visningsklienten. Körs PÅ RASPBERRY PI:N, inte på
+# servern. Kopiera till /etc/systemd/system/hallskarmen-pi.service.
+#
+# Kräver att pi-användaren har SPI aktiverat (raspi-config -> Interface
+# Options -> SPI) och är medlem i gruppen spi/gpio beroende på
+# Waveshare-drivrutinens krav.
+
+[Unit]
+Description=Hallskarmen -- e-ink display client
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/hallskarmen
+EnvironmentFile=/home/pi/hallskarmen/pi.env
+ExecStart=/home/pi/hallskarmen/.venv/bin/python -m pi.client
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,48 @@
+# Kopiera till config.yaml och fyll i. config.yaml ska INTE committas
+# (den ligger redan i .gitignore) -- den beskriver var barnen är och när.
+#
+# Hemligheten (DASHBOARD_TOKEN) hör INTE hemma här. Den sätts som
+# miljövariabel, se deploy/hallskarmen-server.service.
+
+place:
+  latitude: 59.3293
+  longitude: 18.0686
+  # SL:s plats-id för hållplatsen. Hitta den via
+  # https://transport.integration.sl.se/v1/sites?expand=true och sök på namnet.
+  site_id: null
+  # Delsträng som ska matcha destinationen på avgångarna du bryr dig om,
+  # t.ex. "Kungsträdgården". Lämna tom för att visa alla riktningar.
+  direction: null
+  # Avgångar närmare än så här filtreras bort -- annars visas en avgång du
+  # ändå inte hinner till.
+  walk_minutes: 5
+
+children:
+  - name: "Ella"
+    school_start: "07:55"
+    # Korta veckodagsnycklar: mån tis ons tor fre lör sön
+    sport_days: ["tis", "tor"]
+  - name: "Otto"
+    school_start: "08:10"
+    sport_days: []
+
+# Slug:en skolmaten.se använder för skolan, ur url:en
+# skolmaten.se/<slug>/rss/weeks/
+school_slug: null
+
+# Väg A: publicerade ICS-länkar (iCloud, Google Calendar m.fl.).
+# En öppen länk -- sprids den kan vem som helst läsa kalendern.
+calendar_urls: []
+
+# Väg B: peka ut en funktion i din egen befintliga kalenderkod på servern.
+# Formen är "modul:funktion". Funktionen anropas som fn(settings, day) och
+# ska returnera en lista med dict eller objekt som har title och
+# start (datetime) eller time (sträng "HH:MM").
+# Väg A och B kan användas samtidigt.
+calendar_provider: null
+
+timezone: "Europe/Stockholm"
+
+# Bas-url:er för källorna, bara om standardvärdet i respektive
+# server/sources/*.py behöver bytas ut (t.ex. om SMHI flyttar sitt api igen).
+endpoints: {}
