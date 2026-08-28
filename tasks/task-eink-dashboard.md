@@ -39,9 +39,14 @@ webblasare istallet for i hallen.
 ## Hardvara (inkopt)
 
 - Waveshare 7.5" e-Paper HAT V2, 800x480, svart/vit, 884 kr
-- Raspberry Pi Zero 2 WH (fyrkarnig, fardig stiftlist), 700 kr
+- Raspberry Pi 3 Model A+ (1.4 GHz fyrkarnig, 512 MB, fardig stiftlist)
+  Valdes efter att Zero 2 WH visade sig slutsald overallt. Snabbare CPU,
+  dual band wifi, och fullstor HDMI plus USB-A vilket ger en raddningsvag
+  om den headless-installationen inte far kontakt med natverket.
 - microSD 16-32 GB A1
-- Micro-USB-strom
+- Micro-USB-strom, minst 5 V / 2,5 A. Pi 3A+ drar betydligt mer an en
+  Zero. For lite strom ger underspanning, som yttrar sig som slumpmassiga
+  hangningar snarare an som ett tydligt fel.
 - Ram ca 21x30 cm
 
 ## Kontrakt mellan server och Pi
